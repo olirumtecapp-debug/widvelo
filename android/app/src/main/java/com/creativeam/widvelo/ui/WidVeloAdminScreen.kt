@@ -125,6 +125,7 @@ fun WidVeloAdminScreen(
     telemetry: VehicleTelemetry,
     radarCount: Int,
     onSyncTerritory: () -> Unit = {},
+    onCheckForUpdates: () -> Unit = {},
     onBack: () -> Unit
 ) {
     Scaffold(
@@ -193,6 +194,20 @@ fun WidVeloAdminScreen(
                             Icon(imageVector = Icons.Default.Download, contentDescription = null)
                             Spacer(modifier = Modifier.width(6.dp))
                             Text("Sincronizar SBC & Grande ABC", fontWeight = FontWeight.Bold)
+                        }
+
+                        Spacer(modifier = Modifier.height(4.dp))
+
+                        OutlinedButton(
+                            onClick = onCheckForUpdates,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.outlinedButtonColors(contentColor = CyanAccent),
+                            border = BorderStroke(1.dp, CyanAccent.copy(alpha = 0.5f))
+                        ) {
+                            Icon(imageVector = Icons.Default.SystemUpdate, contentDescription = null)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Verificar Atualizações do App (OTA)", fontWeight = FontWeight.Bold)
                         }
                     }
                 }

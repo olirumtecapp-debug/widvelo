@@ -245,3 +245,29 @@
 - **Status da Etapa:** ✅ Concluída com sucesso.
 
 ---
+
+### [PONTO DE RESTAURAÇÃO #010] — Sistema de Atualização Automática no App (OTA) com Changelog de Melhorias
+- **Data/Hora:** 23/10/2026 - 16h15
+- **Versão:** 1.0.3 (Build 4)
+- **Objetivo da Etapa:**
+  - Implementação completa do sistema de atualização Over-The-Air (OTA) com 1 toque no WidVelo, espelhando a experiência do GoOrNo.
+  - Criação do manifesto remoto de versão ersion.json hospedado no repositório GitHub com changelog oficial de melhorias, tamanho do pacote e URLs diretas do APK.
+  - Desenvolvimento do subsistema AppUpdateManager.kt e AppUpdateModel.kt para checagem assíncrona com timeout e streaming com barra de progresso em tempo real.
+  - Implementação do diálogo modal UpdateDialog.kt em Jetpack Compose exibindo badge da nova versão, data de lançamento, lista detalhada de novidades (changelog) e botões de ação ("Atualizar Agora" e "Lembrar Mais Tarde").
+  - Configuração do provedor seguro FileProvider (es/xml/file_paths.xml) e permissão REQUEST_INSTALL_PACKAGES no AndroidManifest.xml para acionamento direto do instalador nativo do Android (pplication/vnd.android.package-archive).
+  - Integração da checagem automática na abertura do aplicativo (MainActivity.kt) e botões manuais de verificação no painel de configurações (WidVeloSettingsScreen.kt) e auditoria (WidVeloAdminScreen.kt).
+- **Arquivos Criados/Afetados:**
+  - ersion.json
+  - ndroid/app/src/main/res/xml/file_paths.xml
+  - ndroid/app/src/main/java/com/creativeam/widvelo/update/AppUpdateModel.kt
+  - ndroid/app/src/main/java/com/creativeam/widvelo/update/AppUpdateManager.kt
+  - ndroid/app/src/main/java/com/creativeam/widvelo/update/UpdateDialog.kt
+  - ndroid/app/src/main/AndroidManifest.xml
+  - ndroid/app/src/main/java/com/creativeam/widvelo/MainActivity.kt
+  - ndroid/app/src/main/java/com/creativeam/widvelo/ui/WidVeloSettingsScreen.kt
+  - ndroid/app/src/main/java/com/creativeam/widvelo/ui/WidVeloAdminScreen.kt
+  - ndroid/app/build.gradle (v1.0.3 Build 4)
+  - CHANGELOG_ADM.md
+- **Status da Etapa:** ✅ Concluída com sucesso.
+
+---

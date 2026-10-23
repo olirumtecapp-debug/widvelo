@@ -36,6 +36,10 @@ import com.creativeam.widvelo.ui.WidVeloAdminScreen
 import com.creativeam.widvelo.ui.WidVeloSettingsScreen
 import com.creativeam.widvelo.ui.theme.WidVeloTheme
 import com.creativeam.widvelo.widget.FloatingWidVeloService
+import com.creativeam.widvelo.update.AppUpdateInfo
+import com.creativeam.widvelo.update.AppUpdateManager
+import com.creativeam.widvelo.update.UpdateDialog
+import com.creativeam.widvelo.update.UpdateDownloadState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -49,6 +53,7 @@ class MainActivity : ComponentActivity() {
     private lateinit var citySyncManager: CitySyncManager
     private lateinit var overspeedEvaluator: OverspeedEvaluator
     private lateinit var audioAlerter: AudioAlerter
+    private val appUpdateManager = AppUpdateManager()
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -154,6 +159,27 @@ class MainActivity : ComponentActivity() {
             }
 
             WidVeloTheme(darkTheme = darkThemeEnabled) {
+                // Diálogo de Atualização Automática OTA
+                if (availableUpdate != null) {
+                    UpdateDialog(
+                        updateInfo = availableUpdate!!,
+                        downloadState = updateDownloadState,
+                        onStartDownload = {
+                            scope.launch {
+                                appUpdateManager.downloadAndInstallApk(
+                                    context = this@MainActivity,
+                                    apkUrl = availableUpdate!!.directDownloadUrl.ifBlank { availableUpdate!!.apkUrl }
+                                ) { state ->
+                                    updateDownloadState = state
+                                }
+                            }
+                        },
+                        onDismiss = {
+                            availableUpdate = null
+                            updateDownloadState = UpdateDownloadState.Idle
+                        }
+                    )
+                }
                 when (currentScreen) {
                     "main" -> {
                         MainSpeedometerScreen(
@@ -189,12 +215,15 @@ class MainActivity : ComponentActivity() {
                             onToleranceChanged = { toleranceKmh = it },
                             onSoundChanged = { soundEnabled = it },
                             onThemeChanged = { darkThemeEnabled = it },
+                            onCheckForUpdates = triggerUpdateCheck,
+                            onCheckForUpdates = triggerUpdateCheck,
                             onBack = { currentScreen = "main" }
                         )
                     }
                     "radars" -> {
                         RadarListScreen(
                             radars = allRadarsList,
+                            onCheckForUpdates = triggerUpdateCheck,
                             onBack = { currentScreen = "main" }
                         )
                     }
@@ -211,6 +240,7 @@ class MainActivity : ComponentActivity() {
                                     Toast.makeText(this@MainActivity, res.message, Toast.LENGTH_LONG).show()
                                 }
                             },
+                            onCheckForUpdates = triggerUpdateCheck,
                             onBack = { currentScreen = "main" }
                         )
                     }

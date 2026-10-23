@@ -7,6 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Speed
 import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,6 +29,7 @@ fun WidVeloSettingsScreen(
     onToleranceChanged: (Int) -> Unit,
     onSoundChanged: (Boolean) -> Unit,
     onThemeChanged: (Boolean) -> Unit,
+    onCheckForUpdates: () -> Unit = {},
     onBack: () -> Unit
 ) {
     Scaffold(
@@ -119,6 +121,51 @@ fun WidVeloSettingsScreen(
                                     )
                                 }
                             }
+                        }
+                    }
+                }
+            }
+
+            item {
+                Text(
+                    text = "ATUALIZAÇÕES E VERSÃO",
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = ElectricBlue
+                )
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = CardDefaults.outlinedCardBorder()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Versão do App", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
+                                Text("v1.0.2 (Build 3) • OTA Ativo", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                            }
+                        }
+
+                        Button(
+                            onClick = onCheckForUpdates,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = ElectricBlue)
+                        ) {
+                            Icon(imageVector = Icons.Default.SystemUpdate, contentDescription = null)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Verificar Atualizações do App", fontWeight = FontWeight.Bold)
                         }
                     }
                 }
