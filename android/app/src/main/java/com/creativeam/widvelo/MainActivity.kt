@@ -123,9 +123,10 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-            // Atualiza lista completa para a tela de radares
+            // Atualiza lista completa para a tela de radares e garante semente carregada
             LaunchedEffect(Unit) {
                 withContext(Dispatchers.IO) {
+                    WidVeloDatabase.ensureSeeded(database)
                     allRadarsList = database.radarDao().getAllRadars()
                 }
             }

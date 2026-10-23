@@ -72,12 +72,13 @@ fun RadarListScreen(
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
                         Row(
+                            modifier = Modifier.weight(1f),
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.spacedBy(12.dp)
                         ) {
                             Box(
                                 modifier = Modifier
-                                    .size(44.dp)
+                                    .size(42.dp)
                                     .clip(CircleShape)
                                     .background(ElectricBlue.copy(alpha = 0.12f)),
                                 contentAlignment = Alignment.Center
@@ -85,27 +86,35 @@ fun RadarListScreen(
                                 Icon(
                                     imageVector = Icons.Default.CameraAlt,
                                     contentDescription = null,
-                                    tint = ElectricBlue
+                                    tint = ElectricBlue,
+                                    modifier = Modifier.size(20.dp)
                                 )
                             }
-                            Column {
+                            Column(modifier = Modifier.weight(1f)) {
                                 Text(
-                                    text = radar.highway ?: "Rodovia não especificada",
+                                    text = radar.highway ?: "Via não especificada",
                                     fontWeight = FontWeight.Bold,
-                                    fontSize = 14.sp
+                                    fontSize = 14.sp,
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                                 )
                                 Text(
                                     text = "${radar.municipality ?: ""} - ${radar.state ?: ""} (${radar.kmReference ?: ""})",
                                     fontSize = 12.sp,
-                                    color = SlateGray
+                                    color = SlateGray,
+                                    maxLines = 1,
+                                    overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
                                 )
                                 Text(
                                     text = "Fonte: ${radar.source} · Sentido: ${radar.bearing?.toInt() ?: 0}°",
                                     fontSize = 11.sp,
-                                    color = ElectricBlue
+                                    color = ElectricBlue,
+                                    maxLines = 1
                                 )
                             }
                         }
+
+                        Spacer(modifier = Modifier.width(8.dp))
 
                         if (radar.speedLimit != null) {
                             Surface(
@@ -118,7 +127,8 @@ fun RadarListScreen(
                                     color = AlertRed,
                                     fontWeight = FontWeight.Black,
                                     fontSize = 13.sp,
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                                    maxLines = 1
                                 )
                             }
                         }

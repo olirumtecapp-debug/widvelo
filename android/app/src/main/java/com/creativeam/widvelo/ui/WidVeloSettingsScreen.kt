@@ -72,10 +72,11 @@ fun WidVeloSettingsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
-                                Text("Unidade de Velocidade", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                Text("Exibição no velocímetro e widget", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Unidade de Velocidade", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, maxLines = 1)
+                                Text("Exibição no velocímetro e widget", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), maxLines = 1)
                             }
+                            Spacer(modifier = Modifier.width(8.dp))
                             Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                                 FilterChip(
                                     selected = currentUnit == SpeedUnit.KMH,
@@ -103,7 +104,8 @@ fun WidVeloSettingsScreen(
                             Text(
                                 "Evita alertas constantes por pequenas variações do GPS.",
                                 fontSize = 12.sp,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                maxLines = 1
                             )
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
@@ -144,10 +146,11 @@ fun WidVeloSettingsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
-                                Text("Alertas Sonoros (Beep)", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                Text("Beep ao se aproximar de radares e excesso", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Alertas Sonoros (Beep)", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, maxLines = 1)
+                                Text("Beep ao se aproximar de radares e excesso", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), maxLines = 1)
                             }
+                            Spacer(modifier = Modifier.width(8.dp))
                             Switch(
                                 checked = soundEnabled,
                                 onCheckedChange = onSoundChanged
@@ -161,10 +164,11 @@ fun WidVeloSettingsScreen(
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
-                            Column {
-                                Text("Modo Escuro (Noturno)", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                Text("Fundo preto OLED para dirigir à noite", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text("Modo Escuro (Noturno)", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, maxLines = 1)
+                                Text("Fundo preto OLED para dirigir à noite", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), maxLines = 1)
                             }
+                            Spacer(modifier = Modifier.width(8.dp))
                             Switch(
                                 checked = darkThemeEnabled,
                                 onCheckedChange = onThemeChanged

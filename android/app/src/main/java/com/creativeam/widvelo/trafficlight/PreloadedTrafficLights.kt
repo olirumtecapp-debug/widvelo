@@ -192,6 +192,63 @@ object PreloadedTrafficLights {
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 70,
                 directionBearing = 210f
+            ),
+
+            // São Bernardo do Campo & Grande ABC - Cruzamentos Principais
+            TrafficLightEntity(
+                id = "sbc_tl_pereira_barreto_metropole",
+                latitude = -23.6845,
+                longitude = -46.5450,
+                roadName = "Av. Pereira Barreto",
+                crossRoadName = "R. Kara / Shopping Metrópole",
+                city = "São Bernardo do Campo",
+                hasRedLightCamera = true,
+                cycleTimeSeconds = 80,
+                directionBearing = 160f
+            ),
+            TrafficLightEntity(
+                id = "sbc_tl_faria_lima_marechal",
+                latitude = -23.7025,
+                longitude = -46.5510,
+                roadName = "Av. Brig. Faria Lima",
+                crossRoadName = "Rua Marechal Deodoro",
+                city = "São Bernardo do Campo",
+                hasRedLightCamera = true,
+                cycleTimeSeconds = 75,
+                directionBearing = 180f
+            ),
+            TrafficLightEntity(
+                id = "sbc_tl_vergueiro_praca_meninos",
+                latitude = -23.6690,
+                longitude = -46.5650,
+                roadName = "Av. Senador Vergueiro",
+                crossRoadName = "Av. Caminho do Mar (Praça dos Meninos)",
+                city = "São Bernardo do Campo",
+                hasRedLightCamera = true,
+                cycleTimeSeconds = 85,
+                directionBearing = 145f
+            ),
+            TrafficLightEntity(
+                id = "sbc_tl_kennedy_poliesportivo",
+                latitude = -23.6880,
+                longitude = -46.5520,
+                roadName = "Av. Kennedy",
+                crossRoadName = "Rua Continental",
+                city = "São Bernardo do Campo",
+                hasRedLightCamera = false,
+                cycleTimeSeconds = 60,
+                directionBearing = 30f
+            ),
+            TrafficLightEntity(
+                id = "sbc_tl_piraporinha_robert_kennedy",
+                latitude = -23.6950,
+                longitude = -46.5920,
+                roadName = "Av. Piraporinha",
+                crossRoadName = "Av. Robert Kennedy (Largo)",
+                city = "São Bernardo do Campo",
+                hasRedLightCamera = true,
+                cycleTimeSeconds = 90,
+                directionBearing = 190f
             )
         )
     }

@@ -14,16 +14,20 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.ImageView
+import android.widget.FrameLayout
 import android.widget.LinearLayout
 import android.widget.TextView
 import com.creativeam.widvelo.overspeed.OverspeedLevel
 import kotlin.math.abs
 
 /**
- * Janela flutuante minimalista (Widget Flutuante) do WidVelo.
- * Permanece visível sobre o Google Maps, Waze ou outros aplicativos com velocímetro,
- * limite de via e proximidade de radar em tempo real.
+ * Widget Flutuante Estilo Waze do WidVelo.
+ * Design circular, clean e dinâmico:
+ * 1. Velocímetro redondo branco com tipografia preta sólida.
+ * 2. Em excesso de velocidade: velocímetro fica VERMELHO com dígitos brancos.
+ * 3. Placa R-19 circular de limite da via: em excesso de velocidade, fica MAIORZINHA e vermelha como no Waze.
+ * 4. Botão discreto de fechar (✕) para encerrar o widget com 1 toque.
+ * 5. Mini-cápsula inferior para alerta de radar e semáforos.
  */
 class FloatingWidVeloWidget(private val context: Context) {
 
@@ -34,17 +38,20 @@ class FloatingWidVeloWidget(private val context: Context) {
     private var windowParams: WindowManager.LayoutParams? = null
 
     // Componentes de interface do widget
+    private lateinit var speedCircle: LinearLayout
     private lateinit var tvSpeed: TextView
     private lateinit var tvUnit: TextView
+
+    private lateinit var limitCircle: LinearLayout
     private lateinit var tvLimit: TextView
-    private lateinit var limitBadgeLayout: LinearLayout
-    private lateinit var tvRadar: TextView
-    private lateinit var radarBadgeLayout: LinearLayout
-    private lateinit var tvTrafficLight: TextView
-    private lateinit var trafficLightBadgeLayout: LinearLayout
-    private lateinit var cardContainer: LinearLayout
+
+    private lateinit var radarPillLayout: LinearLayout
+    private lateinit var tvRadarPill: TextView
+
+    private lateinit var btnClose: TextView
 
     private var isVisible = false
+    private var currentOverspeedLevel = OverspeedLevel.NORMAL
 
     @SuppressLint("ClickableViewAccessibility")
     fun show() {
@@ -73,7 +80,7 @@ class FloatingWidVeloWidget(private val context: Context) {
         val view = buildWidgetView()
         rootView = view
 
-        // Listener de arrasto e toque
+        // Listener de arrasto e reposicionamento
         var initialX = 0
         var initialY = 0
         var touchStartX = 0f
@@ -105,10 +112,8 @@ class FloatingWidVeloWidget(private val context: Context) {
                 }
                 MotionEvent.ACTION_UP -> {
                     if (isDragging) {
-                        // Salva a posição preferida do motorista
                         prefs.edit().putInt("widget_pos_x", params.x).putInt("widget_pos_y", params.y).apply()
                     } else {
-                        // Toque simples: abre o aplicativo principal
                         openMainActivity()
                     }
                     true
@@ -124,124 +129,79 @@ class FloatingWidVeloWidget(private val context: Context) {
     }
 
     private fun buildWidgetView(): LinearLayout {
+        // Container vertical raiz (comporta a linha dos círculos e a pílula de radar abaixo)
         val root = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER_HORIZONTAL
+            setPadding(dp(4), dp(4), dp(4), dp(4))
+        }
+
+        // Linha Principal Horizontal (Placa Limite + Velocímetro Redondo + Botão Fechar)
+        val mainRow = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
         }
 
-        // Card Container com Borda e Cantos Arredondados Modernos
-        cardContainer = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(12), dp(8), dp(12), dp(8))
-            background = createCardBackground("#0A0B0E", "#0284C7", 16f, 3)
-        }
-
-        // 1. Coluna de Velocidade (Número Gigante + km/h)
-        val speedCol = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.BOTTOM
-        }
-        tvSpeed = TextView(context).apply {
-            text = "0"
-            setTextColor(Color.WHITE)
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 26f)
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-        }
-        tvUnit = TextView(context).apply {
-            text = " km/h"
-            setTextColor(Color.parseColor("#94A3B8"))
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-            setPadding(0, 0, 0, dp(4))
-        }
-        speedCol.addView(tvSpeed)
-        speedCol.addView(tvUnit)
-        cardContainer.addView(speedCol)
-
-        // Divisória vertical 1
-        val sep1 = View(context).apply {
-            background = createSolidBackground("#334155", 1f)
-            layoutParams = LinearLayout.LayoutParams(dp(2), dp(24)).apply {
-                marginStart = dp(10)
-                marginEnd = dp(10)
+        // 1. Placa R-19 Circular de Limite da Via (Waze Style)
+        limitCircle = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            background = createCircleDrawable("#FFFFFF", "#EF4444", 3)
+            layoutParams = LinearLayout.LayoutParams(dp(38), dp(38)).apply {
+                marginEnd = dp(6)
             }
         }
-        cardContainer.addView(sep1)
-
-        // 2. Badge de Limite da Via (Círculo padrão regulamentar ou Pill)
-        limitBadgeLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER
-            setPadding(dp(8), dp(3), dp(8), dp(3))
-            background = createCardBackground("#FFFFFF", "#EF4444", 8f, 2)
-        }
         tvLimit = TextView(context).apply {
-            text = "---"
+            text = "50"
             setTextColor(Color.parseColor("#0F172A"))
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            gravity = Gravity.CENTER
         }
-        limitBadgeLayout.addView(tvLimit)
-        cardContainer.addView(limitBadgeLayout)
+        limitCircle.addView(tvLimit)
+        mainRow.addView(limitCircle)
 
-        // 3. Badge de Radar Próximo
-        radarBadgeLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(8), dp(4), dp(8), dp(4))
-            background = createCardBackground("#1E293B", "#38BDF8", 8f, 1)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                marginStart = dp(8)
+        // 2. Velocímetro Redondo Central (Waze Style)
+        speedCircle = LinearLayout(context).apply {
+            orientation = LinearLayout.VERTICAL
+            gravity = Gravity.CENTER
+            background = createCircleDrawable("#FFFFFF", "#CBD5E1", 2)
+            layoutParams = LinearLayout.LayoutParams(dp(76), dp(76))
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                elevation = dp(6).toFloat()
             }
         }
-        tvRadar = TextView(context).apply {
-            text = "RADAR 500m"
-            setTextColor(Color.parseColor("#38BDF8"))
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-        }
-        radarBadgeLayout.addView(tvRadar)
-        cardContainer.addView(radarBadgeLayout)
 
-        // 4. Badge de Semáforo / Temporizador de Cruzamento
-        trafficLightBadgeLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            gravity = Gravity.CENTER_VERTICAL
-            setPadding(dp(8), dp(4), dp(8), dp(4))
-            background = createCardBackground("#1E293B", "#10B981", 8f, 1)
-            layoutParams = LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.WRAP_CONTENT,
-                LinearLayout.LayoutParams.WRAP_CONTENT
-            ).apply {
-                marginStart = dp(8)
-            }
-        }
-        tvTrafficLight = TextView(context).apply {
-            text = "FAROL"
-            setTextColor(Color.parseColor("#10B981"))
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
-            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
-        }
-        trafficLightBadgeLayout.addView(tvTrafficLight)
-        cardContainer.addView(trafficLightBadgeLayout)
-
-        // 5. Botão de Fechar Widget (✕) com toque direto
-        val btnClose = TextView(context).apply {
-            text = "✕"
-            setTextColor(Color.parseColor("#94A3B8"))
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+        tvSpeed = TextView(context).apply {
+            text = "0"
+            setTextColor(Color.parseColor("#0F172A"))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 28f)
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
             gravity = Gravity.CENTER
-            background = createSolidBackground("#1E293B", 12f)
-            layoutParams = LinearLayout.LayoutParams(
-                dp(24),
-                dp(24)
-            ).apply {
-                marginStart = dp(8)
+            includeFontPadding = false
+        }
+        tvUnit = TextView(context).apply {
+            text = "km/h"
+            setTextColor(Color.parseColor("#64748B"))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 9.5f)
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            includeFontPadding = false
+        }
+        speedCircle.addView(tvSpeed)
+        speedCircle.addView(tvUnit)
+        mainRow.addView(speedCircle)
+
+        // 3. Botão Circular de Fechar Widget (✕)
+        btnClose = TextView(context).apply {
+            text = "✕"
+            setTextColor(Color.WHITE)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            background = createCircleDrawable("#334155", "#475569", 1)
+            layoutParams = LinearLayout.LayoutParams(dp(22), dp(22)).apply {
+                marginStart = dp(6)
             }
             setOnTouchListener { v, event ->
                 when (event.action) {
@@ -262,70 +222,114 @@ class FloatingWidVeloWidget(private val context: Context) {
                 }
             }
         }
-        cardContainer.addView(btnClose)
+        mainRow.addView(btnClose)
+        root.addView(mainRow)
 
-        root.addView(cardContainer)
+        // 4. Mini-Cápsula Inferior de Radar / Semáforo
+        radarPillLayout = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER
+            setPadding(dp(10), dp(3), dp(10), dp(3))
+            background = createPillBackground("#0F172A", "#38BDF8", 12f, 1)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                topMargin = dp(6)
+            }
+            visibility = View.GONE
+        }
+        tvRadarPill = TextView(context).apply {
+            text = "⚠️ RADAR 400m"
+            setTextColor(Color.parseColor("#38BDF8"))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            gravity = Gravity.CENTER
+        }
+        radarPillLayout.addView(tvRadarPill)
+        root.addView(radarPillLayout)
+
         return root
     }
 
     fun updateState(state: FloatingWidgetState) {
         if (!isVisible || rootView == null) return
 
-        // 1. Velocidade
+        // 1. Atualiza valor de velocidade
         tvSpeed.text = state.speedValue
-        tvUnit.text = " ${state.speedUnit}"
+        tvUnit.text = state.speedUnit
 
-        // 2. Cor da Borda conforme Excesso de Velocidade
-        val borderColor = when (state.overspeedLevel) {
-            OverspeedLevel.EXCEEDED -> "#EF4444" // Vermelho Alerta
-            OverspeedLevel.CAUTION -> "#F59E0B"  // Âmbar
-            OverspeedLevel.NORMAL -> "#10B981"   // Verde
-            OverspeedLevel.NO_LIMIT -> "#0284C7" // Azul Elétrico
-        }
-        cardContainer.background = createCardBackground("#0A0B0E", borderColor, 16f, 3)
+        val isOverspeed = state.overspeedLevel == OverspeedLevel.EXCEEDED ||
+                state.overspeedLevel == OverspeedLevel.CAUTION
 
-        // 3. Limite da Via
-        if (!state.speedLimitText.isNullOrBlank()) {
-            limitBadgeLayout.visibility = View.VISIBLE
-            tvLimit.text = state.speedLimitText
+        // 2. Estilo do Velocímetro Central:
+        // Normal: Círculo Branco com dígitos escuros.
+        // Excesso (Waze): Círculo VERMELHO vivo com dígitos brancos.
+        if (isOverspeed) {
+            speedCircle.background = createCircleDrawable("#EF4444", "#DC2626", 3)
+            tvSpeed.setTextColor(Color.WHITE)
+            tvUnit.setTextColor(Color.parseColor("#FEE2E2"))
         } else {
-            limitBadgeLayout.visibility = View.GONE
+            speedCircle.background = createCircleDrawable("#FFFFFF", "#CBD5E1", 2)
+            tvSpeed.setTextColor(Color.parseColor("#0F172A"))
+            tvUnit.setTextColor(Color.parseColor("#64748B"))
         }
 
-        // 4. Radar Próximo
+        // 3. Estilo da Placa R-19 de Limite da Via (Waze Style):
+        // Quando está acima da velocidade, a placa FICA MAIORZINHA e com borda vermelha destacada!
+        val limitText = state.speedLimitText
+        if (!limitText.isNullOrBlank()) {
+            limitCircle.visibility = View.VISIBLE
+            tvLimit.text = limitText
+
+            val layoutParams = limitCircle.layoutParams as LinearLayout.LayoutParams
+            if (isOverspeed) {
+                // Placa expandida (maiorzinha)
+                layoutParams.width = dp(48)
+                layoutParams.height = dp(48)
+                limitCircle.layoutParams = layoutParams
+                limitCircle.background = createCircleDrawable("#FFFFFF", "#DC2626", 4)
+                tvLimit.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16f)
+                tvLimit.setTextColor(Color.parseColor("#DC2626"))
+            } else {
+                // Placa tamanho normal compacto
+                layoutParams.width = dp(38)
+                layoutParams.height = dp(38)
+                limitCircle.layoutParams = layoutParams
+                limitCircle.background = createCircleDrawable("#FFFFFF", "#EF4444", 3)
+                tvLimit.setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+                tvLimit.setTextColor(Color.parseColor("#0F172A"))
+            }
+        } else {
+            limitCircle.visibility = View.GONE
+        }
+
+        // 4. Alerta de Radar ou Semáforo na Mini-Cápsula
         if (!state.radarDistanceText.isNullOrBlank()) {
-            radarBadgeLayout.visibility = View.VISIBLE
+            radarPillLayout.visibility = View.VISIBLE
             val radarType = state.radarTypeLabel ?: "RADAR"
-            tvRadar.text = "⚠️ $radarType ${state.radarDistanceText}"
+            tvRadarPill.text = "⚠️ $radarType ${state.radarDistanceText}"
 
             if (state.isRadarImminent) {
-                // Alerta Iminente (<= 100m): Realce em amarelo/vermelho
-                radarBadgeLayout.background = createCardBackground("#451A03", "#F59E0B", 8f, 2)
-                tvRadar.setTextColor(Color.parseColor("#FDE047"))
+                radarPillLayout.background = createPillBackground("#450A0A", "#EF4444", 12f, 2)
+                tvRadarPill.setTextColor(Color.parseColor("#FCA5A5"))
             } else {
-                radarBadgeLayout.background = createCardBackground("#0F172A", "#38BDF8", 8f, 1)
-                tvRadar.setTextColor(Color.parseColor("#38BDF8"))
+                radarPillLayout.background = createPillBackground("#0F172A", "#38BDF8", 12f, 1)
+                tvRadarPill.setTextColor(Color.parseColor("#38BDF8"))
             }
-        } else {
-            radarBadgeLayout.visibility = View.GONE
-        }
-
-        // 5. Semáforo Próximo & Temporizador
-        if (!state.trafficLightNotice.isNullOrBlank()) {
-            trafficLightBadgeLayout.visibility = View.VISIBLE
-            tvTrafficLight.text = state.trafficLightNotice
+        } else if (!state.trafficLightNotice.isNullOrBlank()) {
+            radarPillLayout.visibility = View.VISIBLE
+            tvRadarPill.text = state.trafficLightNotice
 
             if (state.isAtRedLightStandstill) {
-                // Parado no semáforo: destaque em vermelho/laranja com contagem regressiva
-                trafficLightBadgeLayout.background = createCardBackground("#450A0A", "#EF4444", 8f, 2)
-                tvTrafficLight.setTextColor(Color.parseColor("#FCA5A5"))
+                radarPillLayout.background = createPillBackground("#450A0A", "#EF4444", 12f, 2)
+                tvRadarPill.setTextColor(Color.parseColor("#FCA5A5"))
             } else {
-                // Aproximação de semáforo: verde/ciano discreto
-                trafficLightBadgeLayout.background = createCardBackground("#0F172A", "#10B981", 8f, 1)
-                tvTrafficLight.setTextColor(Color.parseColor("#34D399"))
+                radarPillLayout.background = createPillBackground("#0F172A", "#10B981", 12f, 1)
+                tvRadarPill.setTextColor(Color.parseColor("#34D399"))
             }
         } else {
-            trafficLightBadgeLayout.visibility = View.GONE
+            radarPillLayout.visibility = View.GONE
         }
     }
 
@@ -349,20 +353,22 @@ class FloatingWidVeloWidget(private val context: Context) {
         } catch (_: Exception) {}
     }
 
-    private fun createCardBackground(bgColorHex: String, strokeColorHex: String, radiusDp: Float, strokeWidthDp: Int): GradientDrawable {
+    private fun createCircleDrawable(bgColorHex: String, strokeColorHex: String, strokeWidthDp: Int): GradientDrawable {
+        return GradientDrawable().apply {
+            shape = GradientDrawable.OVAL
+            setColor(Color.parseColor(bgColorHex))
+            if (strokeWidthDp > 0) {
+                setStroke(dp(strokeWidthDp), Color.parseColor(strokeColorHex))
+            }
+        }
+    }
+
+    private fun createPillBackground(bgColorHex: String, strokeColorHex: String, radiusDp: Float, strokeWidthDp: Int): GradientDrawable {
         return GradientDrawable().apply {
             shape = GradientDrawable.RECTANGLE
             setColor(Color.parseColor(bgColorHex))
             cornerRadius = dp(radiusDp.toInt()).toFloat()
             setStroke(dp(strokeWidthDp), Color.parseColor(strokeColorHex))
-        }
-    }
-
-    private fun createSolidBackground(bgColorHex: String, radiusDp: Float): GradientDrawable {
-        return GradientDrawable().apply {
-            shape = GradientDrawable.RECTANGLE
-            setColor(Color.parseColor(bgColorHex))
-            cornerRadius = dp(radiusDp.toInt()).toFloat()
         }
     }
 

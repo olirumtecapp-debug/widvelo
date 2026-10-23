@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 
 @Database(
     entities = [RadarEntity::class, TrafficLightEntity::class],
-    version = 2,
+    version = 3,
     exportSchema = false
 )
 @TypeConverters(RadarTypeConverter::class)
@@ -39,11 +39,9 @@ abstract class WidVeloDatabase : RoomDatabase() {
                     .addCallback(object : Callback() {
                         override fun onCreate(db: SupportSQLiteDatabase) {
                             super.onCreate(db)
-                            // Popula o banco com radares e semáforos homologados na primeira inicialização
                             CoroutineScope(Dispatchers.IO).launch {
                                 val database = getInstance(context)
-                                database.radarDao().insertAll(PreloadedRadars.getInitialSeed())
-                                database.trafficLightDao().insertAll(PreloadedTrafficLights.getInitialSeed())
+                                ensureSeeded(database)
                             }
                         }
                     })
@@ -51,6 +49,21 @@ abstract class WidVeloDatabase : RoomDatabase() {
                 INSTANCE = instance
                 instance
             }
+        }
+
+        /**
+         * Garante que os radares e semáforos estejam sempre presentes no banco,
+         * prevenindo tabelas vazias por falhas assíncronas ou migrações.
+         */
+        suspend fun ensureSeeded(database: WidVeloDatabase) {
+            try {
+                if (database.radarDao().getRadarCount() == 0) {
+                    database.radarDao().insertAll(PreloadedRadars.getInitialSeed())
+                }
+                if (database.trafficLightDao().getCount() == 0) {
+                    database.trafficLightDao().insertAll(PreloadedTrafficLights.getInitialSeed())
+                }
+            } catch (_: Exception) {}
         }
     }
 }

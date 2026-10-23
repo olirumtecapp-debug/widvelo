@@ -43,6 +43,10 @@ class FloatingWidVeloService : Service() {
         audioAlerter = AudioAlerter(applicationContext)
         widget = FloatingWidVeloWidget(applicationContext)
 
+        serviceScope.launch(Dispatchers.IO) {
+            WidVeloDatabase.ensureSeeded(db)
+        }
+
         widget?.show()
         _isWidgetActive.value = true
 

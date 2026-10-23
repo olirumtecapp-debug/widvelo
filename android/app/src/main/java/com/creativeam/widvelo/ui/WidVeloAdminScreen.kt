@@ -101,6 +101,15 @@ val OFFICIAL_AUDIT_LOG = listOf(
         description = "Integração da base Room com semáforos urbanos (OSM/CET), filtro angular de cruzamento, detecção de imobilização no farol e temporizador progressivo no mostrador e no Widget Flutuante.",
         filesAffected = listOf("TrafficLightEntity.kt", "TrafficLightDao.kt", "PreloadedTrafficLights.kt", "TrafficLightAlert.kt", "TrafficLightDetector.kt", "WidVeloDatabase.kt", "FloatingWidVeloWidget.kt", "FloatingWidVeloService.kt", "MainSpeedometerScreen.kt", "MainActivity.kt", "TrafficLightDetectorTest.kt"),
         status = "CONCLUÍDO"
+    ),
+    AuditLogEntry(
+        checkpointId = "#008",
+        title = "Widget Redondo Waze, Radares de SBC & Refinamento Visual",
+        date = "23/10/2026",
+        version = "v1.0.1 (Build 2)",
+        description = "Redesign completo do Widget Flutuante no estilo circular Waze: velocímetro redondo branco com transição para vermelho em excesso, placa R-19 circular que expande e fica maiorzinha, botão de fechar (✕), motor de limite urbano padrão e banco de radares de SBC/Grande ABC populado com 35+ pontos oficiais.",
+        filesAffected = listOf("FloatingWidVeloWidget.kt", "FloatingWidVeloService.kt", "PreloadedRadars.kt", "PreloadedTrafficLights.kt", "SpeedLimitEngine.kt", "WidVeloDatabase.kt", "MainSpeedometerScreen.kt", "RadarListScreen.kt", "WidVeloSettingsScreen.kt", "build.gradle"),
+        status = "CONCLUÍDO"
     )
 )
 

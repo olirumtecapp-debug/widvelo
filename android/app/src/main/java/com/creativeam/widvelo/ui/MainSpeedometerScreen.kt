@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.creativeam.widvelo.R
@@ -57,13 +58,15 @@ fun MainSpeedometerScreen(
         label = "SpeedometerRingColor"
     )
 
+    val isOverspeed = overspeedLevel == OverspeedLevel.EXCEEDED || overspeedLevel == OverspeedLevel.CAUTION
+
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier.clickable {
                             logoTapCount++
                             if (logoTapCount >= 3) {
@@ -83,12 +86,14 @@ fun MainSpeedometerScreen(
                                 fontWeight = FontWeight.Black,
                                 fontSize = 18.sp,
                                 letterSpacing = (-0.5).sp,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1
                             )
                             Text(
                                 text = "Velocímetro GPS & Radares",
-                                fontSize = 10.5.sp,
-                                color = SlateGray
+                                fontSize = 11.sp,
+                                color = SlateGray,
+                                maxLines = 1
                             )
                         }
                     }
@@ -114,19 +119,19 @@ fun MainSpeedometerScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 20.dp, vertical = 10.dp),
+                .padding(horizontal = 16.dp, vertical = 8.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // 1. Chip de Qualidade do GPS e Satélites
+            // 1. Chip Superior de Sinal GPS
             Surface(
                 shape = RoundedCornerShape(999.dp),
                 color = Color(android.graphics.Color.parseColor(telemetry.signalQuality.colorHex)).copy(alpha = 0.12f),
                 border = BorderStroke(1.dp, Color(android.graphics.Color.parseColor(telemetry.signalQuality.colorHex)).copy(alpha = 0.4f)),
-                modifier = Modifier.padding(top = 4.dp)
+                modifier = Modifier.padding(top = 2.dp)
             ) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 6.dp),
+                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(6.dp)
                 ) {
@@ -140,19 +145,20 @@ fun MainSpeedometerScreen(
                         text = "${telemetry.signalQuality.label} (±${telemetry.accuracyMeters.toInt()}m)",
                         fontSize = 12.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color(android.graphics.Color.parseColor(telemetry.signalQuality.colorHex))
+                        color = Color(android.graphics.Color.parseColor(telemetry.signalQuality.colorHex)),
+                        maxLines = 1
                     )
                 }
             }
 
-            // 2. Velocímetro Digital Gigante Central
+            // 2. Velocímetro Digital Circular Central (Estilo Painel Dinâmico)
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(260.dp)
+                    .size(230.dp)
                     .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surface)
-                    .border(BorderStroke(8.dp, ringColor.copy(alpha = 0.85f)), CircleShape)
+                    .background(if (isOverspeed) AlertRed.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface)
+                    .border(BorderStroke(8.dp, ringColor.copy(alpha = 0.9f)), CircleShape)
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -160,230 +166,263 @@ fun MainSpeedometerScreen(
                 ) {
                     Text(
                         text = telemetry.formattedSpeed,
-                        fontSize = 78.sp,
+                        fontSize = 72.sp,
                         fontWeight = FontWeight.Black,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        letterSpacing = (-2).sp
+                        color = if (isOverspeed) AlertRed else MaterialTheme.colorScheme.onSurface,
+                        letterSpacing = (-2).sp,
+                        maxLines = 1
                     )
                     Text(
                         text = telemetry.speedUnit.label.uppercase(),
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = SlateGray,
-                        letterSpacing = 1.sp
+                        color = if (isOverspeed) AlertRed else SlateGray,
+                        letterSpacing = 1.sp,
+                        maxLines = 1
                     )
 
                     if (telemetry.bearing > 0f && telemetry.speedKmh >= 5.0) {
-                        Text(
-                            text = "${telemetry.bearing.toInt()}° Rumo",
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                            color = SlateGray.copy(alpha = 0.8f),
+                        Surface(
+                            shape = RoundedCornerShape(999.dp),
+                            color = SlateGray.copy(alpha = 0.12f),
                             modifier = Modifier.padding(top = 4.dp)
-                        )
+                        ) {
+                            Text(
+                                text = "${telemetry.bearing.toInt()}° Rumo",
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = SlateGray,
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 2.dp),
+                                maxLines = 1
+                            )
+                        }
                     }
                 }
             }
 
-            // 3. Limite da Via e Próximo Radar
+            // 3. Painel de Informações da Via (Limite + Radar + Semáforo)
             Column(
                 modifier = Modifier.fillMaxWidth(),
-                verticalArrangement = Arrangement.spacedBy(10.dp)
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Linha de Limite de Velocidade
+                // Linha de Limite da Via (Placa R-19 Waze Style)
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant)
+                    border = BorderStroke(1.dp, if (isOverspeed) AlertRed.copy(alpha = 0.6f) else MaterialTheme.colorScheme.outlineVariant)
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(14.dp),
+                            .padding(horizontal = 14.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Column {
+                        Column(modifier = Modifier.weight(1f)) {
                             Text(
-                                text = "LIMITE DA VIA",
-                                fontSize = 11.sp,
+                                text = "LIMITE REGULAMENTAR",
+                                fontSize = 10.5.sp,
                                 fontWeight = FontWeight.Bold,
-                                color = SlateGray
+                                color = SlateGray,
+                                letterSpacing = 0.5.sp,
+                                maxLines = 1
                             )
                             Text(
-                                text = speedLimit.roadName ?: "Via sem identificação",
-                                fontSize = 13.sp,
+                                text = speedLimit.roadName ?: "Via Urbana Regulamentada",
+                                fontSize = 13.5.sp,
                                 fontWeight = FontWeight.SemiBold,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         }
 
-                        if (speedLimit.isAvailable) {
-                            Box(
-                                modifier = Modifier
-                                    .size(46.dp)
-                                    .clip(CircleShape)
-                                    .background(Color.White)
-                                    .border(BorderStroke(4.dp, AlertRed), CircleShape),
-                                contentAlignment = Alignment.Center
-                            ) {
-                                Text(
-                                    text = "${speedLimit.limitKmh}",
-                                    fontWeight = FontWeight.Black,
-                                    fontSize = 18.sp,
-                                    color = Graphite
-                                )
-                            }
-                        } else {
-                            Surface(
-                                shape = RoundedCornerShape(8.dp),
-                                color = SlateGray.copy(alpha = 0.12f)
-                            ) {
-                                Text(
-                                    text = speedLimit.displayText,
-                                    fontSize = 12.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = SlateGray,
-                                    modifier = Modifier.padding(horizontal = 10.dp, vertical = 6.dp)
-                                )
-                            }
+                        Spacer(modifier = Modifier.width(10.dp))
+
+                        // Placa Circular R-19
+                        val limitVal = speedLimit.limitKmh ?: 50
+                        Box(
+                            modifier = Modifier
+                                .size(if (isOverspeed) 48.dp else 42.dp)
+                                .clip(CircleShape)
+                                .background(Color.White)
+                                .border(BorderStroke(if (isOverspeed) 4.dp else 3.dp, AlertRed), CircleShape),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            Text(
+                                text = "$limitVal",
+                                fontWeight = FontWeight.Black,
+                                fontSize = if (isOverspeed) 17.sp else 15.sp,
+                                color = if (isOverspeed) AlertRed else Graphite,
+                                maxLines = 1
+                            )
                         }
                     }
                 }
 
-                // Card de Radar Próximo
+                // Linha de Fiscalização Eletrônica / Radar Próximo
                 Card(
                     modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(14.dp),
+                    shape = RoundedCornerShape(12.dp),
                     colors = CardDefaults.cardColors(
                         containerColor = if (activeRadarAlert != null && activeRadarAlert.isImminent) {
-                            CautionAmber.copy(alpha = 0.15f)
+                            AlertRed.copy(alpha = 0.08f)
+                        } else if (activeRadarAlert != null) {
+                            CautionAmber.copy(alpha = 0.08f)
                         } else {
                             MaterialTheme.colorScheme.surface
                         }
                     ),
                     border = BorderStroke(
-                        width = if (activeRadarAlert != null) 2.dp else 1.dp,
-                        color = if (activeRadarAlert != null && activeRadarAlert.isImminent) CautionAmber else MaterialTheme.colorScheme.outlineVariant
+                        width = if (activeRadarAlert != null) 1.5.dp else 1.dp,
+                        color = if (activeRadarAlert != null && activeRadarAlert.isImminent) {
+                            AlertRed
+                        } else if (activeRadarAlert != null) {
+                            CautionAmber
+                        } else {
+                            MaterialTheme.colorScheme.outlineVariant
+                        }
                     )
                 ) {
                     Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(14.dp),
+                            .padding(horizontal = 14.dp, vertical = 10.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Row(
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        Box(
+                            modifier = Modifier
+                                .size(36.dp)
+                                .clip(CircleShape)
+                                .background(
+                                    if (activeRadarAlert != null) CautionAmber.copy(alpha = 0.15f)
+                                    else SlateGray.copy(alpha = 0.12f)
+                                ),
+                            contentAlignment = Alignment.Center
                         ) {
                             Icon(
                                 imageVector = Icons.Default.CameraAlt,
                                 contentDescription = null,
-                                tint = if (activeRadarAlert != null) CautionAmber else SlateGray
+                                tint = if (activeRadarAlert != null) CautionAmber else SlateGray,
+                                modifier = Modifier.size(20.dp)
                             )
-                            Column {
-                                Text(
-                                    text = if (activeRadarAlert != null) "RADAR CONFIRMADO À FRENTE" else "FISCALIZAÇÃO ELETRÔNICA",
-                                    fontSize = 11.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    color = if (activeRadarAlert != null) CautionAmber else SlateGray
-                                )
-                                Text(
-                                    text = activeRadarAlert?.radar?.highway ?: "Nenhum radar próximo em rota",
-                                    fontSize = 13.sp,
-                                    fontWeight = FontWeight.SemiBold,
-                                    color = MaterialTheme.colorScheme.onSurface
-                                )
-                            }
+                        }
+
+                        Spacer(modifier = Modifier.width(10.dp))
+
+                        Column(modifier = Modifier.weight(1f)) {
+                            Text(
+                                text = if (activeRadarAlert != null) "⚠️ RADAR HOMOLOGADO À FRENTE" else "FISCALIZAÇÃO ELETRÔNICA",
+                                fontSize = 10.5.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = if (activeRadarAlert != null) CautionAmber else SlateGray,
+                                maxLines = 1
+                            )
+                            Text(
+                                text = activeRadarAlert?.radar?.highway ?: "Nenhum radar nos próximos 1.500m",
+                                fontSize = 13.5.sp,
+                                fontWeight = FontWeight.SemiBold,
+                                color = MaterialTheme.colorScheme.onSurface,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
+                            )
                         }
 
                         if (activeRadarAlert != null) {
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 text = activeRadarAlert.formattedDistance,
-                                fontSize = 18.sp,
+                                fontSize = 17.sp,
                                 fontWeight = FontWeight.Black,
-                                color = if (activeRadarAlert.isImminent) AlertRed else ElectricBlue
+                                color = if (activeRadarAlert.isImminent) AlertRed else ElectricBlue,
+                                maxLines = 1
                             )
                         }
                     }
                 }
 
-                // Card de Semáforo & Temporizador de Cruzamento
+                // Linha de Semáforo / Cruzamento (quando ativo)
                 if (activeTrafficLightAlert != null) {
                     val isWaiting = activeTrafficLightAlert.isAtStandstill
                     Card(
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(14.dp),
+                        shape = RoundedCornerShape(12.dp),
                         colors = CardDefaults.cardColors(
                             containerColor = if (isWaiting) AlertRed.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface
                         ),
                         border = BorderStroke(
-                            width = if (isWaiting) 2.dp else 1.dp,
+                            width = 1.dp,
                             color = if (isWaiting) AlertRed else SafeGreen.copy(alpha = 0.6f)
                         )
                     ) {
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(14.dp)
+                                .padding(horizontal = 14.dp, vertical = 10.dp)
                         ) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
                                 verticalAlignment = Alignment.CenterVertically,
                                 horizontalArrangement = Arrangement.SpaceBetween
                             ) {
-                                Row(
-                                    verticalAlignment = Alignment.CenterVertically,
-                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                Box(
+                                    modifier = Modifier
+                                        .size(36.dp)
+                                        .clip(CircleShape)
+                                        .background(
+                                            if (isWaiting) AlertRed.copy(alpha = 0.15f)
+                                            else SafeGreen.copy(alpha = 0.15f)
+                                        ),
+                                    contentAlignment = Alignment.Center
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Traffic,
                                         contentDescription = null,
-                                        tint = if (isWaiting) AlertRed else SafeGreen
+                                        tint = if (isWaiting) AlertRed else SafeGreen,
+                                        modifier = Modifier.size(20.dp)
                                     )
-                                    Column {
-                                        Text(
-                                            text = if (isWaiting) "🚦 PARADO NO FAROL • AGUARDE" else "🚦 SEMÁFORO À FRENTE",
-                                            fontSize = 11.sp,
-                                            fontWeight = FontWeight.Bold,
-                                            color = if (isWaiting) AlertRed else SafeGreen
-                                        )
-                                        Text(
-                                            text = "${activeTrafficLightAlert.entity.roadName} x ${activeTrafficLightAlert.entity.crossRoadName}",
-                                            fontSize = 13.sp,
-                                            fontWeight = FontWeight.SemiBold,
-                                            color = MaterialTheme.colorScheme.onSurface
-                                        )
-                                    }
                                 }
 
-                                if (isWaiting) {
+                                Spacer(modifier = Modifier.width(10.dp))
+
+                                Column(modifier = Modifier.weight(1f)) {
                                     Text(
-                                        text = "~${activeTrafficLightAlert.estimatedRemainingSeconds}s",
-                                        fontSize = 20.sp,
-                                        fontWeight = FontWeight.Black,
-                                        color = AlertRed
+                                        text = if (isWaiting) "🚦 PARADO NO FAROL • AGUARDE" else "🚦 SEMÁFORO À FRENTE",
+                                        fontSize = 10.5.sp,
+                                        fontWeight = FontWeight.Bold,
+                                        color = if (isWaiting) AlertRed else SafeGreen,
+                                        maxLines = 1
                                     )
-                                } else {
                                     Text(
-                                        text = activeTrafficLightAlert.formattedDistance,
-                                        fontSize = 18.sp,
-                                        fontWeight = FontWeight.Black,
-                                        color = SafeGreen
+                                        text = "${activeTrafficLightAlert.entity.roadName} x ${activeTrafficLightAlert.entity.crossRoadName}",
+                                        fontSize = 13.5.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        maxLines = 1,
+                                        overflow = TextOverflow.Ellipsis
                                     )
                                 }
+
+                                Spacer(modifier = Modifier.width(8.dp))
+
+                                Text(
+                                    text = if (isWaiting) "~${activeTrafficLightAlert.estimatedRemainingSeconds}s" else activeTrafficLightAlert.formattedDistance,
+                                    fontSize = 17.sp,
+                                    fontWeight = FontWeight.Black,
+                                    color = if (isWaiting) AlertRed else SafeGreen,
+                                    maxLines = 1
+                                )
                             }
 
                             if (isWaiting && activeTrafficLightAlert.progressFraction > 0f) {
-                                Spacer(modifier = Modifier.height(8.dp))
+                                Spacer(modifier = Modifier.height(6.dp))
                                 LinearProgressIndicator(
                                     progress = { activeTrafficLightAlert.progressFraction },
                                     modifier = Modifier
                                         .fillMaxWidth()
-                                        .height(6.dp)
+                                        .height(5.dp)
                                         .clip(RoundedCornerShape(3.dp)),
                                     color = AlertRed,
                                     trackColor = AlertRed.copy(alpha = 0.2f)
@@ -394,57 +433,61 @@ fun MainSpeedometerScreen(
                 }
             }
 
-            // 4. Painel Inferior de Controles (Widget Flutuante + Iniciar/Parar Sessão)
+            // 4. Painel Inferior de Ações (Widget Flutuante + Iniciar/Pausar)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 12.dp),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    .padding(bottom = 6.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Botão de alternar Widget Flutuante
                 OutlinedButton(
                     onClick = onToggleWidget,
                     modifier = Modifier
                         .weight(1f)
-                        .height(52.dp),
+                        .height(50.dp),
                     shape = RoundedCornerShape(12.dp),
-                    border = BorderStroke(1.5.dp, if (isWidgetActive) ElectricBlue else SlateGray.copy(alpha = 0.5f))
+                    border = BorderStroke(1.5.dp, if (isWidgetActive) ElectricBlue else SlateGray.copy(alpha = 0.4f)),
+                    contentPadding = PaddingValues(horizontal = 8.dp)
                 ) {
                     Icon(
                         imageVector = if (isWidgetActive) Icons.Default.LayersClear else Icons.Default.Layers,
                         contentDescription = null,
-                        tint = if (isWidgetActive) ElectricBlue else SlateGray
+                        tint = if (isWidgetActive) ElectricBlue else SlateGray,
+                        modifier = Modifier.size(18.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
                         text = if (isWidgetActive) "Ocultar Widget" else "Widget Flutuante",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 12.5.sp,
-                        color = if (isWidgetActive) ElectricBlue else MaterialTheme.colorScheme.onSurface
+                        fontSize = 13.sp,
+                        color = if (isWidgetActive) ElectricBlue else MaterialTheme.colorScheme.onSurface,
+                        maxLines = 1
                     )
                 }
 
-                // Botão de Iniciar / Encerrar Sessão
                 Button(
                     onClick = onToggleSession,
                     modifier = Modifier
                         .weight(1f)
-                        .height(52.dp),
+                        .height(50.dp),
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(
                         containerColor = if (telemetry.isSessionActive) AlertRed else ElectricBlue
-                    )
+                    ),
+                    contentPadding = PaddingValues(horizontal = 8.dp)
                 ) {
                     Icon(
                         imageVector = if (telemetry.isSessionActive) Icons.Default.Stop else Icons.Default.PlayArrow,
-                        contentDescription = null
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(6.dp))
                     Text(
-                        text = if (telemetry.isSessionActive) "Parar" else "Iniciar",
+                        text = if (telemetry.isSessionActive) "Parar GPS" else "Iniciar GPS",
                         fontWeight = FontWeight.Bold,
-                        fontSize = 14.sp
+                        fontSize = 13.5.sp,
+                        maxLines = 1
                     )
                 }
             }

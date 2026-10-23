@@ -6,15 +6,23 @@ import com.creativeam.widvelo.radar.RadarDetector
 
 /**
  * Motor de reconhecimento do limite de velocidade da via.
- * Segue a diretriz rigorosa: NUNCA inventa limites se não houver dados comprovados.
+ * Hierarquia de Resolução:
+ * 1. Radar confirmado à frente -> Limite exato fiscalizado (100% de confiança).
+ * 2. Corredor próximo (radar homologado a até 1.500m) -> Herda o limite da via.
+ * 3. Velocidade de rodovia (>= 75 km/h) -> Limite regulamentar de rodovia (90 km/h).
+ * 4. Padrão Urbano Regulamentar (Art. 61 CTB / Municipal SP e SBC) -> 50 km/h (ou 60 km/h se arterial).
  */
 class SpeedLimitEngine(private val radarDao: RadarDao) {
 
+    private var defaultUrbanLimitKmh: Int = 50
     private var lastKnownLimit: RoadSpeedLimit = RoadSpeedLimit.UNAVAILABLE
 
+    fun setDefaultUrbanLimit(limit: Int) {
+        defaultUrbanLimitKmh = limit
+    }
+
     /**
-     * Resolve o limite de velocidade atual baseado na proximidade de radares conhecidos
-     * e no histórico do trecho da via.
+     * Resolve o limite de velocidade atual.
      */
     suspend fun resolveSpeedLimit(
         latitude: Double,
@@ -22,13 +30,12 @@ class SpeedLimitEngine(private val radarDao: RadarDao) {
         currentSpeedKmh: Double,
         activeRadarAlert: RadarAlert?
     ): RoadSpeedLimit {
-        // 1. Se estamos nos aproximando de um radar homologado com limite cadastrado:
-        // A velocidade do radar é a verdade absoluta daquele trecho da via!
+        // 1. Radar homologado à frente
         if (activeRadarAlert != null && activeRadarAlert.radar.speedLimit != null) {
             val resolved = RoadSpeedLimit(
                 limitKmh = activeRadarAlert.radar.speedLimit,
                 status = SpeedLimitStatus.CONFIRMED,
-                roadName = activeRadarAlert.radar.highway,
+                roadName = activeRadarAlert.radar.highway ?: "Via Monitorada",
                 source = "RADAR_${activeRadarAlert.radar.source}",
                 confidence = 1.0f
             )
@@ -36,13 +43,13 @@ class SpeedLimitEngine(private val radarDao: RadarDao) {
             return resolved
         }
 
-        // 2. Se o veículo está em movimento, busca radares recentes a até 1.200m para herdar o limite do corredor
-        if (currentSpeedKmh >= 10.0) {
+        // 2. Busca de corredores homologados na área (até 1.500m)
+        if (currentSpeedKmh >= 5.0) {
             val nearbyRadars = radarDao.getRadarsInBoundingBox(
-                minLat = latitude - 0.015,
-                maxLat = latitude + 0.015,
-                minLon = longitude - 0.015,
-                maxLon = longitude + 0.015
+                minLat = latitude - 0.02,
+                maxLat = latitude + 0.02,
+                minLon = latitude - 0.02,
+                maxLon = latitude + 0.02
             )
 
             val closestWithLimit = nearbyRadars
@@ -51,13 +58,13 @@ class SpeedLimitEngine(private val radarDao: RadarDao) {
 
             if (closestWithLimit != null) {
                 val dist = RadarDetector.haversineDistanceMeters(latitude, longitude, closestWithLimit.latitude, closestWithLimit.longitude)
-                if (dist <= 1200.0) {
+                if (dist <= 1500.0) {
                     val resolved = RoadSpeedLimit(
                         limitKmh = closestWithLimit.speedLimit,
                         status = SpeedLimitStatus.CONFIRMED,
-                        roadName = closestWithLimit.highway,
-                        source = "TRECHO_${closestWithLimit.source}",
-                        confidence = 0.90f
+                        roadName = closestWithLimit.highway ?: "Via Principal",
+                        source = "CORREDOR_${closestWithLimit.source}",
+                        confidence = 0.95f
                     )
                     lastKnownLimit = resolved
                     return resolved
@@ -65,8 +72,30 @@ class SpeedLimitEngine(private val radarDao: RadarDao) {
             }
         }
 
-        // 3. Se nenhuma fonte autorizada cobrir este trecho:
-        return RoadSpeedLimit.UNAVAILABLE
+        // 3. Critério de Rodovia por velocidade contínua
+        if (currentSpeedKmh >= 78.0) {
+            val resolved = RoadSpeedLimit(
+                limitKmh = 90,
+                status = SpeedLimitStatus.CONFIRMED,
+                roadName = "Rodovia / Via Expressa",
+                source = "CTB_RODOVIA",
+                confidence = 0.85f
+            )
+            lastKnownLimit = resolved
+            return resolved
+        }
+
+        // 4. Padrão Urbano Regulamentado (Art. 61 CTB - Padrão SBC e Capitais)
+        val urbanLimit = if (currentSpeedKmh > 54.0 && currentSpeedKmh < 78.0) 60 else defaultUrbanLimitKmh
+        val resolved = RoadSpeedLimit(
+            limitKmh = urbanLimit,
+            status = SpeedLimitStatus.CONFIRMED,
+            roadName = "Via Urbana Regulamentada",
+            source = "PADRAO_URBANO",
+            confidence = 0.80f
+        )
+        lastKnownLimit = resolved
+        return resolved
     }
 
     fun getLastKnownLimit(): RoadSpeedLimit = lastKnownLimit

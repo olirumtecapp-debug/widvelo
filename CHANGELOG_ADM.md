@@ -171,3 +171,41 @@
 - **Status da Etapa:** ✅ Concluída com sucesso.
 
 ---
+
+### [PONTO DE RESTAURAÇÃO #008] — Widget Redondo Waze, Radares de SBC & Refinamento Visual do App
+- **Data/Hora:** 23/10/2026 - 15h30
+- **Versão:** `v1.0.1` (Build `2`)
+- **Objetivo da Etapa:**
+  - **Widget Flutuante Estilo Waze:** Redesign completo substituindo o antigo card retangular escuro por um cluster circular elegante:
+    - Velocímetro redondo branco (`#FFFFFF`) com dígitos pretos sólidos e nítidos.
+    - Em excesso de velocidade: velocímetro transmuta para **VERMELHO VIVO** (`#EF4444`) com dígitos brancos.
+    - Placa R-19 circular de limite de velocidade: em excesso de velocidade, **fica maiorzinha** (expande de 38dp para 48dp com borda vermelha 4dp) exatamente como no Waze!
+    - Botão de fechar circular `✕` integrado para encerrar o widget com 1 toque direto na tela.
+    - Mini-cápsula inferior elegante para alertas de radar (`⚠️ RADAR 350m`) e semáforos.
+  - **Base de Radares e Semáforos de São Bernardo do Campo & Grande ABC:**
+    - Inclusão de 35+ radares municipais e estaduais com limites e sentidos reais (Av. Pereira Barreto, Faria Lima, Senador Vergueiro, Kennedy, Lucas Nogueira Garcez, Lions, Piraporinha, Alvarengas, Cooperativa/Makita/OGGI, Jurubatuba, Rotary, Caminho do Mar, Anchieta SP-150 km 10 ao 29, Imigrantes SP-160 e Rodoanel Sul).
+    - Inclusão de semáforos com temporizadores nos principais cruzamentos de SBC.
+  - **Garantia de Persistência & Resolução de Limites:**
+    - Atualização da Room Database para versão 3 com método `ensureSeeded()` que garante que as tabelas nunca fiquem vazias após instalação ou limpeza de dados.
+    - Motor de limite de velocidade (`SpeedLimitEngine.kt`) com resolução hierárquica inteligente: radar -> corredor -> rodovia -> padrão urbano (50/60 km/h), eliminando o problema de velocidade "Não disponível".
+  - **Refinamento Visual e Tipográfico ("Sem Textos Quebrados"):**
+    - Correção de todas as colunas unweighted em `MainSpeedometerScreen.kt`, `RadarListScreen.kt` e `WidVeloSettingsScreen.kt`.
+    - Adicionado `Modifier.weight(1f)` e `TextOverflow.Ellipsis` para nomes longos de vias e rodovias.
+    - Alinhamento vertical e harmonia de proporções em telas de diferentes resoluções.
+- **Arquivos Criados/Afetados:**
+  - `android/app/src/main/java/com/creativeam/widvelo/widget/FloatingWidVeloWidget.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/widget/FloatingWidVeloService.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/radar/PreloadedRadars.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/trafficlight/PreloadedTrafficLights.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/radar/WidVeloDatabase.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/speedlimit/SpeedLimitEngine.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/ui/MainSpeedometerScreen.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/ui/RadarListScreen.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/ui/WidVeloSettingsScreen.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/ui/WidVeloAdminScreen.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/MainActivity.kt`
+  - `android/app/build.gradle`
+  - `CHANGELOG_ADM.md`
+- **Status da Etapa:** ✅ Concluída com sucesso.
+
+---
