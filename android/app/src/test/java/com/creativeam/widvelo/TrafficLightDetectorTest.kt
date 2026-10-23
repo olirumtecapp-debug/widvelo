@@ -54,9 +54,7 @@ class TrafficLightDetectorTest {
             longitude = -46.6594,
             speedKmh = 45.0,
             bearing = 135f,
-            accuracyMeters = 8.0,
-            hasFix = true,
-            isStandstill = false,
+            accuracyMeters = 8.0f,
             signalQuality = GpsSignalQuality.EXCELLENT
         )
 
@@ -87,9 +85,7 @@ class TrafficLightDetectorTest {
             longitude = -46.6594,
             speedKmh = 45.0,
             bearing = 135f,
-            accuracyMeters = 8.0,
-            hasFix = true,
-            isStandstill = false,
+            accuracyMeters = 8.0f,
             signalQuality = GpsSignalQuality.EXCELLENT
         )
 
@@ -117,9 +113,7 @@ class TrafficLightDetectorTest {
             longitude = -46.6589,
             speedKmh = 0.0,
             bearing = 135f,
-            accuracyMeters = 5.0,
-            hasFix = true,
-            isStandstill = true,
+            accuracyMeters = 5.0f,
             signalQuality = GpsSignalQuality.EXCELLENT
         )
 

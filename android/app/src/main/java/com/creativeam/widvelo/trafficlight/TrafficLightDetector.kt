@@ -18,7 +18,7 @@ class TrafficLightDetector(
      * incluindo o temporizador de ciclo caso o condutor esteja imobilizado no cruzamento.
      */
     suspend fun evaluate(telemetry: VehicleTelemetry): TrafficLightAlert? {
-        if (!telemetry.hasFix || telemetry.accuracyMeters > 35) {
+        if ((telemetry.latitude == 0.0 && telemetry.longitude == 0.0) || telemetry.accuracyMeters > 35f) {
             resetStandstill()
             return null
         }
@@ -55,10 +55,10 @@ class TrafficLightDetector(
             if (distMeters > 250) continue
 
             // Validação de direção angular (cone de ±45° para vias urbanas)
-            if (telemetry.speedKmh > 3.0f && light.directionBearing != null) {
-                val bearingDiff = abs(telemetry.bearingDegrees - light.directionBearing) % 360
-                val acuteAngle = if (bearingDiff > 180) 360 - bearingDiff else bearingDiff
-                if (acuteAngle > 45.0f) {
+            if (telemetry.speedKmh > 3.0 && light.directionBearing != null) {
+                val bearingDiff = (abs(telemetry.bearing - light.directionBearing) % 360).toDouble()
+                val acuteAngle = if (bearingDiff > 180.0) 360.0 - bearingDiff else bearingDiff
+                if (acuteAngle > 45.0) {
                     continue // Semáforo na perpendicular ou fluxo oposto
                 }
             }
@@ -66,7 +66,7 @@ class TrafficLightDetector(
             if (distMeters < minDistance) {
                 minDistance = distMeters
 
-                val isStandstill = telemetry.isStandstill && distMeters <= 65.0
+                val isStandstill = telemetry.isStopped && distMeters <= 65.0
                 val (elapsedSec, remainingSec, progress) = processTimer(light, isStandstill)
 
                 closestAlert = TrafficLightAlert(

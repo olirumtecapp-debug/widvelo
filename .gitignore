@@ -9,3 +9,6 @@
 .cxx
 *.apk
 *.aab
+
+*.ps1
+*.bat
