@@ -26,6 +26,7 @@ import com.creativeam.widvelo.location.VehicleTelemetry
 import com.creativeam.widvelo.ui.theme.CyanAccent
 import com.creativeam.widvelo.ui.theme.ElectricBlue
 import com.creativeam.widvelo.ui.theme.SafeGreen
+import com.creativeam.widvelo.ui.theme.SlateGray
 
 data class AuditLogEntry(
     val checkpointId: String,
