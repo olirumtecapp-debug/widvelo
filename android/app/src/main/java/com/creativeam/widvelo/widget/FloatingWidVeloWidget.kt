@@ -229,6 +229,41 @@ class FloatingWidVeloWidget(private val context: Context) {
         trafficLightBadgeLayout.addView(tvTrafficLight)
         cardContainer.addView(trafficLightBadgeLayout)
 
+        // 5. Botão de Fechar Widget (✕) com toque direto
+        val btnClose = TextView(context).apply {
+            text = "✕"
+            setTextColor(Color.parseColor("#94A3B8"))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 13f)
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+            gravity = Gravity.CENTER
+            background = createSolidBackground("#1E293B", 12f)
+            layoutParams = LinearLayout.LayoutParams(
+                dp(24),
+                dp(24)
+            ).apply {
+                marginStart = dp(8)
+            }
+            setOnTouchListener { v, event ->
+                when (event.action) {
+                    MotionEvent.ACTION_DOWN -> {
+                        v.alpha = 0.5f
+                        true
+                    }
+                    MotionEvent.ACTION_UP -> {
+                        v.alpha = 1.0f
+                        FloatingWidVeloService.stop(context)
+                        true
+                    }
+                    MotionEvent.ACTION_CANCEL -> {
+                        v.alpha = 1.0f
+                        true
+                    }
+                    else -> false
+                }
+            }
+        }
+        cardContainer.addView(btnClose)
+
         root.addView(cardContainer)
         return root
     }
