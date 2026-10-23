@@ -1,5 +1,7 @@
 package com.creativeam.widvelo
 
+import com.creativeam.widvelo.BuildConfig
+
 import android.Manifest
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -244,14 +246,12 @@ class MainActivity : ComponentActivity() {
                             onSoundChanged = { soundEnabled = it },
                             onThemeChanged = { darkThemeEnabled = it },
                             onCheckForUpdates = triggerUpdateCheck,
-                            onCheckForUpdates = triggerUpdateCheck,
                             onBack = { currentScreen = "main" }
                         )
                     }
                     "radars" -> {
                         RadarListScreen(
                             radars = allRadarsList,
-                            onCheckForUpdates = triggerUpdateCheck,
                             onBack = { currentScreen = "main" }
                         )
                     }

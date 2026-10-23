@@ -23,11 +23,11 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.creativeam.widvelo.ui.theme.CyanAccent
-import com.creativeam.widvelo.ui.theme.DarkBackground
+import com.creativeam.widvelo.ui.theme.DarkBg
 import com.creativeam.widvelo.ui.theme.DarkSurface
 import com.creativeam.widvelo.ui.theme.ElectricBlue
 import com.creativeam.widvelo.ui.theme.SafeGreen
-import com.creativeam.widvelo.ui.theme.WarningAmber
+import com.creativeam.widvelo.ui.theme.CautionAmber
 
 @Composable
 fun UpdateDialog(
@@ -125,7 +125,7 @@ fun UpdateDialog(
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(14.dp),
-                    colors = CardDefaults.cardColors(containerColor = DarkBackground.copy(alpha = 0.7f))
+                    colors = CardDefaults.cardColors(containerColor = DarkBg.copy(alpha = 0.7f))
                 ) {
                     Column(modifier = Modifier.padding(14.dp)) {
                         Text(
@@ -215,7 +215,7 @@ fun UpdateDialog(
                         Text(
                             text = downloadState.message,
                             fontSize = 12.sp,
-                            color = WarningAmber,
+                            color = CautionAmber,
                             fontWeight = FontWeight.Medium
                         )
                         Spacer(modifier = Modifier.height(8.dp))
@@ -241,7 +241,7 @@ fun UpdateDialog(
                     Icon(
                         imageVector = Icons.Default.Download,
                         contentDescription = null,
-                        tint = DarkBackground,
+                        tint = DarkBg,
                         modifier = Modifier.size(20.dp)
                     )
                     Spacer(modifier = Modifier.width(8.dp))
@@ -249,7 +249,7 @@ fun UpdateDialog(
                         text = if (downloadState is UpdateDownloadState.Downloading) "Baixando..." else "Atualizar Agora",
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Bold,
-                        color = DarkBackground
+                        color = DarkBg
                     )
                 }
 
