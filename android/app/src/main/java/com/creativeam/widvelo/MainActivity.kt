@@ -87,6 +87,34 @@ class MainActivity : ComponentActivity() {
             var toleranceKmh by remember { mutableStateOf(3) }
             var soundEnabled by remember { mutableStateOf(true) }
             var darkThemeEnabled by remember { mutableStateOf(false) }
+            var availableUpdate by remember { mutableStateOf<AppUpdateInfo?>(null) }
+            var updateDownloadState by remember { mutableStateOf<UpdateDownloadState>(UpdateDownloadState.Idle) }
+
+            // Checagem automática de atualizações ao abrir o app
+            LaunchedEffect(Unit) {
+                withContext(Dispatchers.IO) {
+                    val update = appUpdateManager.checkForUpdates(BuildConfig.VERSION_CODE)
+                    if (update != null) {
+                        withContext(Dispatchers.Main) {
+                            availableUpdate = update
+                        }
+                    }
+                }
+            }
+
+            val triggerUpdateCheck: () -> Unit = {
+                scope.launch {
+                    Toast.makeText(this@MainActivity, "Buscando atualizações...", Toast.LENGTH_SHORT).show()
+                    val update = withContext(Dispatchers.IO) {
+                        appUpdateManager.checkForUpdates(BuildConfig.VERSION_CODE)
+                    }
+                    if (update != null) {
+                        availableUpdate = update
+                    } else {
+                        Toast.makeText(this@MainActivity, "O WidVelo já está na versão mais recente (v${BuildConfig.VERSION_NAME})!", Toast.LENGTH_LONG).show()
+                    }
+                }
+            }
 
             val telemetry by WidVeloLocationService.currentTelemetry.collectAsState()
             val isWidgetActive by FloatingWidVeloService.isWidgetActive.collectAsState()
