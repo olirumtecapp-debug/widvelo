@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">WidVelo</string>
+    <string name="session_active_title">WidVelo em Execução</string>
+    <string name="session_active_desc">Rastreando velocidade e monitorando radares.</string>
+    <string name="action_stop_session">Encerrar Sessão</string>
+    <string name="gps_searching">Buscando sinal de satélites GPS…</string>
+    <string name="speed_limit_unavailable">Limite não disponível</string>
+    <string name="no_radars_nearby">Nenhum radar próximo</string>
+    <string name="overlay_permission_title">Permissão de Janela Flutuante</string>
+    <string name="overlay_permission_desc">O WidVelo precisa de autorização para exibir o velocímetro flutuante sobre outros navegadores (Waze, Google Maps).</string>
+</resources>

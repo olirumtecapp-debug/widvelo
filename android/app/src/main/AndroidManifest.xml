@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.creativeam.widvelo">
+
+    <!-- Permissões essenciais de GPS e Localização -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Foreground Service para manter GPS ativo com outros apps (Waze/Google Maps) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_LOCATION" />
+
+    <!-- Permissão de Sobreposição para o Widget Flutuante -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- Notificações em Android 13+ (API 33) -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Alertas táteis e feedback auditivo -->
+    <uses-permission android:name="android.permission.VIBRATE" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- Hardware Features -->
+    <uses-feature
+        android:name="android.hardware.location.gps"
+        android:required="true" />
+
+    <application
+        android:name=".WidVeloApplication"
+        android:allowBackup="true"
+        android:icon="@drawable/logo_speedometer"
+        android:label="@string/app_name"
+        android:roundIcon="@drawable/logo_speedometer"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.WidVelo"
+        tools:targetApi="34">
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:theme="@style/Theme.WidVelo">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Serviço de rastreamento contínuo em primeiro plano -->
+        <service
+            android:name=".location.WidVeloLocationService"
+            android:exported="false"
+            android:foregroundServiceType="location" />
+
+        <!-- Serviço que desenha o Widget Flutuante sobre o Waze/Maps -->
+        <service
+            android:name=".widget.FloatingWidVeloService"
+            android:exported="false" />
+
+    </application>
+
+</manifest>
