@@ -15,6 +15,8 @@ data class FloatingWidgetState(
     val trafficLightNotice: String? = null,
     val isAtRedLightStandstill: Boolean = false,
     val trafficLightProgress: Float = 0f,
+    val incidentNotice: String? = null,
+    val isIncidentAhead: Boolean = false,
     val overspeedLevel: OverspeedLevel = OverspeedLevel.NORMAL,
     val isRadarImminent: Boolean = false,
     val gpsSignalQuality: GpsSignalQuality = GpsSignalQuality.SEARCHING,

@@ -1,4 +1,4 @@
-package com.creativeam.widvelo.widget
+﻿package com.creativeam.widvelo.widget
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -22,12 +22,12 @@ import kotlin.math.abs
 
 /**
  * Widget Flutuante Estilo Waze do WidVelo.
- * Design circular, clean e dinâmico:
- * 1. Velocímetro redondo branco com tipografia preta sólida.
- * 2. Em excesso de velocidade: velocímetro fica VERMELHO com dígitos brancos.
+ * Design circular, clean e dinÃ¢mico:
+ * 1. VelocÃ­metro redondo branco com tipografia preta sÃ³lida.
+ * 2. Em excesso de velocidade: velocÃ­metro fica VERMELHO com dÃ­gitos brancos.
  * 3. Placa R-19 circular de limite da via: em excesso de velocidade, fica MAIORZINHA e vermelha como no Waze.
- * 4. Botão discreto de fechar (✕) para encerrar o widget com 1 toque.
- * 5. Mini-cápsula inferior para alerta de radar e semáforos.
+ * 4. BotÃ£o discreto de fechar (âœ•) para encerrar o widget com 1 toque.
+ * 5. Mini-cÃ¡psula inferior para alerta de radar e semÃ¡foros.
  */
 class FloatingWidVeloWidget(private val context: Context) {
 
@@ -129,14 +129,14 @@ class FloatingWidVeloWidget(private val context: Context) {
     }
 
     private fun buildWidgetView(): LinearLayout {
-        // Container vertical raiz (comporta a linha dos círculos e a pílula de radar abaixo)
+        // Container vertical raiz (comporta a linha dos cÃ­rculos e a pÃ­lula de radar abaixo)
         val root = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER_HORIZONTAL
             setPadding(dp(4), dp(4), dp(4), dp(4))
         }
 
-        // Linha Principal Horizontal (Placa Limite + Velocímetro Redondo + Botão Fechar)
+        // Linha Principal Horizontal (Placa Limite + VelocÃ­metro Redondo + BotÃ£o Fechar)
         val mainRow = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
@@ -161,7 +161,7 @@ class FloatingWidVeloWidget(private val context: Context) {
         limitCircle.addView(tvLimit)
         mainRow.addView(limitCircle)
 
-        // 2. Velocímetro Redondo Central (Waze Style)
+        // 2. VelocÃ­metro Redondo Central (Waze Style)
         speedCircle = LinearLayout(context).apply {
             orientation = LinearLayout.VERTICAL
             gravity = Gravity.CENTER
@@ -192,9 +192,9 @@ class FloatingWidVeloWidget(private val context: Context) {
         speedCircle.addView(tvUnit)
         mainRow.addView(speedCircle)
 
-        // 3. Botão Circular de Fechar Widget (✕)
+        // 3. BotÃ£o Circular de Fechar Widget (âœ•)
         btnClose = TextView(context).apply {
-            text = "✕"
+            text = "âœ•"
             setTextColor(Color.WHITE)
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
@@ -225,7 +225,7 @@ class FloatingWidVeloWidget(private val context: Context) {
         mainRow.addView(btnClose)
         root.addView(mainRow)
 
-        // 4. Mini-Cápsula Inferior de Radar / Semáforo
+        // 4. Mini-CÃ¡psula Inferior de Radar / SemÃ¡foro
         radarPillLayout = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER
@@ -240,7 +240,7 @@ class FloatingWidVeloWidget(private val context: Context) {
             visibility = View.GONE
         }
         tvRadarPill = TextView(context).apply {
-            text = "⚠️ RADAR 400m"
+            text = "âš ï¸ RADAR 400m"
             setTextColor(Color.parseColor("#38BDF8"))
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 11f)
             typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
@@ -262,9 +262,9 @@ class FloatingWidVeloWidget(private val context: Context) {
         val isOverspeed = state.overspeedLevel == OverspeedLevel.EXCEEDED ||
                 state.overspeedLevel == OverspeedLevel.CAUTION
 
-        // 2. Estilo do Velocímetro Central:
-        // Normal: Círculo Branco com dígitos escuros.
-        // Excesso (Waze): Círculo VERMELHO vivo com dígitos brancos.
+        // 2. Estilo do VelocÃ­metro Central:
+        // Normal: CÃ­rculo Branco com dÃ­gitos escuros.
+        // Excesso (Waze): CÃ­rculo VERMELHO vivo com dÃ­gitos brancos.
         if (isOverspeed) {
             speedCircle.background = createCircleDrawable("#EF4444", "#DC2626", 3)
             tvSpeed.setTextColor(Color.WHITE)
@@ -276,7 +276,7 @@ class FloatingWidVeloWidget(private val context: Context) {
         }
 
         // 3. Estilo da Placa R-19 de Limite da Via (Waze Style):
-        // Quando está acima da velocidade, a placa FICA MAIORZINHA e com borda vermelha destacada!
+        // Quando estÃ¡ acima da velocidade, a placa FICA MAIORZINHA e com borda vermelha destacada!
         val limitText = state.speedLimitText
         if (!limitText.isNullOrBlank()) {
             limitCircle.visibility = View.VISIBLE
@@ -304,11 +304,11 @@ class FloatingWidVeloWidget(private val context: Context) {
             limitCircle.visibility = View.GONE
         }
 
-        // 4. Alerta de Radar ou Semáforo na Mini-Cápsula
+        // 4. Alerta de Radar ou SemÃ¡foro na Mini-CÃ¡psula
         if (!state.radarDistanceText.isNullOrBlank()) {
             radarPillLayout.visibility = View.VISIBLE
             val radarType = state.radarTypeLabel ?: "RADAR"
-            tvRadarPill.text = "⚠️ $radarType ${state.radarDistanceText}"
+            tvRadarPill.text = "âš ï¸ $radarType ${state.radarDistanceText}"
 
             if (state.isRadarImminent) {
                 radarPillLayout.background = createPillBackground("#450A0A", "#EF4444", 12f, 2)

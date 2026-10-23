@@ -209,3 +209,39 @@
 - **Status da Etapa:** ✅ Concluída com sucesso.
 
 ---
+
+### [PONTO DE RESTAURAÇÃO #009] — Cobertura SBC (Vianas, Ítalo Setti), Alertas de Obras/Interdições & Sincronizador Territorial OSM
+- **Data/Hora:** 23/10/2026 - 15h50
+- **Versão:** `v1.0.2` (Build `3`)
+- **Objetivo da Etapa:**
+  - **Módulo de Vias Interditadas, Obras e Bloqueios:**
+    - Criação das entidades `RoadIncidentEntity.kt` e `RoadIncidentDao.kt` no banco Room (versão 4).
+    - Criação do motor geodésico `RoadIncidentDetector.kt` que avalia interdições à frente em raio de até 800m.
+    - Exibição de alertas cirúrgicos na mini-cápsula do Widget Flutuante estilo Waze (`🚧 Obra a 350m: R. dos Vianas` ou `⛔ Via Interditada a 400m`) sem necessidade de carregar mapas pesados.
+    - Card dinâmico de incidentes integrado em `MainSpeedometerScreen.kt`.
+  - **Cobertura Específica da Rua dos Vianas e Av. Ítalo Setti:**
+    - Adicionados radares e semáforos reais com sentidos e tempos de ciclo na Rua dos Vianas (Baeta Neves, Tognato, Thales Freire) e na Av. Ítalo Setti (Jurubatuba, Marechal Deodoro, Paço / Faria Lima).
+  - **Motor de Sincronização Territorial (CitySyncManager):**
+    - Desenvolvido o módulo de sincronização com a Overpass API do OpenStreetMap, permitindo baixar todos os semáforos e câmeras de São Bernardo do Campo com 1 toque no painel ADM e expandir para qualquer outra cidade do Brasil.
+- **Arquivos Criados/Afetados:**
+  - `android/app/src/main/java/com/creativeam/widvelo/incident/RoadIncidentType.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/incident/RoadIncidentEntity.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/incident/RoadIncidentDao.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/incident/RoadIncidentAlert.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/incident/PreloadedIncidents.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/incident/RoadIncidentDetector.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/sync/CitySyncManager.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/radar/PreloadedRadars.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/trafficlight/PreloadedTrafficLights.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/radar/WidVeloDatabase.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/widget/FloatingWidgetState.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/widget/FloatingWidVeloWidget.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/widget/FloatingWidVeloService.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/ui/MainSpeedometerScreen.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/ui/WidVeloAdminScreen.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/MainActivity.kt`
+  - `android/app/build.gradle`
+  - `CHANGELOG_ADM.md`
+- **Status da Etapa:** ✅ Concluída com sucesso.
+
+---

@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.creativeam.widvelo.R
+import com.creativeam.widvelo.incident.RoadIncidentAlert
 import com.creativeam.widvelo.location.VehicleTelemetry
 import com.creativeam.widvelo.overspeed.OverspeedLevel
 import com.creativeam.widvelo.radar.RadarAlert
@@ -38,6 +39,7 @@ fun MainSpeedometerScreen(
     speedLimit: RoadSpeedLimit,
     activeRadarAlert: RadarAlert?,
     activeTrafficLightAlert: TrafficLightAlert? = null,
+    activeIncidentAlert: RoadIncidentAlert? = null,
     overspeedLevel: OverspeedLevel,
     isWidgetActive: Boolean,
     onToggleSession: () -> Unit,
@@ -151,11 +153,11 @@ fun MainSpeedometerScreen(
                 }
             }
 
-            // 2. Velocímetro Digital Circular Central (Estilo Painel Dinâmico)
+            // 2. Velocímetro Digital Circular Central
             Box(
                 contentAlignment = Alignment.Center,
                 modifier = Modifier
-                    .size(230.dp)
+                    .size(220.dp)
                     .clip(CircleShape)
                     .background(if (isOverspeed) AlertRed.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface)
                     .border(BorderStroke(8.dp, ringColor.copy(alpha = 0.9f)), CircleShape)
@@ -166,7 +168,7 @@ fun MainSpeedometerScreen(
                 ) {
                     Text(
                         text = telemetry.formattedSpeed,
-                        fontSize = 72.sp,
+                        fontSize = 70.sp,
                         fontWeight = FontWeight.Black,
                         color = if (isOverspeed) AlertRed else MaterialTheme.colorScheme.onSurface,
                         letterSpacing = (-2).sp,
@@ -200,12 +202,12 @@ fun MainSpeedometerScreen(
                 }
             }
 
-            // 3. Painel de Informações da Via (Limite + Radar + Semáforo)
+            // 3. Painel de Informações da Via (Limite + Incidentes + Radar + Semáforo)
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Linha de Limite da Via (Placa R-19 Waze Style)
+                // Card de Limite Regulamentar (Placa R-19 Waze Style)
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -240,7 +242,7 @@ fun MainSpeedometerScreen(
 
                         Spacer(modifier = Modifier.width(10.dp))
 
-                        // Placa Circular R-19
+                        // Placa Circular R-19 (expande em overspeed)
                         val limitVal = speedLimit.limitKmh ?: 50
                         Box(
                             modifier = Modifier
@@ -261,7 +263,69 @@ fun MainSpeedometerScreen(
                     }
                 }
 
-                // Linha de Fiscalização Eletrônica / Radar Próximo
+                // Card de Alerta de Via Interditada / Obras (quando presente)
+                if (activeIncidentAlert != null) {
+                    val alertColor = Color(android.graphics.Color.parseColor(activeIncidentAlert.entity.type.colorHex))
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = CardDefaults.cardColors(containerColor = alertColor.copy(alpha = 0.10f)),
+                        border = BorderStroke(1.5.dp, alertColor)
+                    ) {
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 14.dp, vertical = 10.dp),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.SpaceBetween
+                        ) {
+                            Box(
+                                modifier = Modifier
+                                    .size(36.dp)
+                                    .clip(CircleShape)
+                                    .background(alertColor.copy(alpha = 0.2f)),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(
+                                    text = activeIncidentAlert.entity.type.badge,
+                                    fontSize = 18.sp
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(10.dp))
+
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = activeIncidentAlert.entity.type.label.uppercase(),
+                                    fontSize = 10.5.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    color = alertColor,
+                                    maxLines = 1
+                                )
+                                Text(
+                                    text = "${activeIncidentAlert.entity.roadName}: ${activeIncidentAlert.entity.description}",
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                    color = MaterialTheme.colorScheme.onSurface,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+
+                            Spacer(modifier = Modifier.width(8.dp))
+
+                            Text(
+                                text = activeIncidentAlert.formattedDistance,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Black,
+                                color = alertColor,
+                                maxLines = 1
+                            )
+                        }
+                    }
+                }
+
+                // Card de Fiscalização Eletrônica / Radar Próximo
                 Card(
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -343,7 +407,7 @@ fun MainSpeedometerScreen(
                     }
                 }
 
-                // Linha de Semáforo / Cruzamento (quando ativo)
+                // Card de Semáforo / Cruzamento (quando ativo)
                 if (activeTrafficLightAlert != null) {
                     val isWaiting = activeTrafficLightAlert.isAtStandstill
                     Card(

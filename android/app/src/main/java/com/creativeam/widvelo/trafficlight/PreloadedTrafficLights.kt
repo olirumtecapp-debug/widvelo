@@ -1,21 +1,89 @@
-package com.creativeam.widvelo.trafficlight
+﻿package com.creativeam.widvelo.trafficlight
 
 /**
- * Catálogo inicial de sementes homologadas de semáforos urbanos e cruzamentos mapeados.
- * Coordenadas reais extraídas de malhas abertas do OpenStreetMap e dados abertos de engenharia de tráfego.
+ * CatÃ¡logo inicial de sementes homologadas de semÃ¡foros urbanos e cruzamentos mapeados.
+ * Coordenadas reais extraÃ­das de malhas abertas do OpenStreetMap e dados abertos de engenharia de trÃ¡fego.
  */
 object PreloadedTrafficLights {
 
     fun getInitialSeed(): List<TrafficLightEntity> {
+        fun getInitialSeed(): List<TrafficLightEntity> {
         return listOf(
-            // São Paulo - Av. Paulista e transversais
+            // === RUA DOS VIANAS & AV. ÍTALO SETTI (SBC) ===
+            TrafficLightEntity(
+                id = "sbc_tl_vianas_pereira_barreto",
+                latitude = -23.6825,
+                longitude = -46.5360,
+                roadName = "Rua dos Vianas",
+                crossRoadName = "Av. Pereira Barreto (Baeta Neves)",
+                city = "São Bernardo do Campo",
+                hasRedLightCamera = true,
+                cycleTimeSeconds = 75,
+                directionBearing = 140f
+            ),
+            TrafficLightEntity(
+                id = "sbc_tl_vianas_giacinto_tognato",
+                latitude = -23.6800,
+                longitude = -46.5320,
+                roadName = "Rua dos Vianas",
+                crossRoadName = "Rua Giacinto Tognato",
+                city = "São Bernardo do Campo",
+                hasRedLightCamera = true,
+                cycleTimeSeconds = 65,
+                directionBearing = 140f
+            ),
+            TrafficLightEntity(
+                id = "sbc_tl_vianas_thales_freire",
+                latitude = -23.6765,
+                longitude = -46.5295,
+                roadName = "Rua dos Vianas",
+                crossRoadName = "R. Thales dos Santos Freire",
+                city = "São Bernardo do Campo",
+                hasRedLightCamera = false,
+                cycleTimeSeconds = 60,
+                directionBearing = 320f
+            ),
+            TrafficLightEntity(
+                id = "sbc_tl_italo_setti_jurubatuba",
+                latitude = -23.6925,
+                longitude = -46.5495,
+                roadName = "Av. Ítalo Setti",
+                crossRoadName = "Av. Jurubatuba",
+                city = "São Bernardo do Campo",
+                hasRedLightCamera = true,
+                cycleTimeSeconds = 80,
+                directionBearing = 180f
+            ),
+            TrafficLightEntity(
+                id = "sbc_tl_italo_setti_marechal",
+                latitude = -23.6955,
+                longitude = -46.5510,
+                roadName = "Av. Ítalo Setti",
+                crossRoadName = "Rua Marechal Deodoro (Centro)",
+                city = "São Bernardo do Campo",
+                hasRedLightCamera = true,
+                cycleTimeSeconds = 70,
+                directionBearing = 180f
+            ),
+            TrafficLightEntity(
+                id = "sbc_tl_italo_setti_faria_lima",
+                latitude = -23.6980,
+                longitude = -46.5520,
+                roadName = "Av. Ítalo Setti",
+                crossRoadName = "Av. Brig. Faria Lima (Paço)",
+                city = "São Bernardo do Campo",
+                hasRedLightCamera = true,
+                cycleTimeSeconds = 85,
+                directionBearing = 195f
+            ),
+            // SÃ£o Paulo - Av. Paulista e transversais
             TrafficLightEntity(
                 id = "osm_tl_paulista_consolacao",
                 latitude = -23.5552,
                 longitude = -46.6622,
                 roadName = "Av. Paulista",
-                crossRoadName = "Rua da Consolação",
-                city = "São Paulo",
+                crossRoadName = "Rua da ConsolaÃ§Ã£o",
+                city = "SÃ£o Paulo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 90,
                 directionBearing = 135f
@@ -26,7 +94,7 @@ object PreloadedTrafficLights {
                 longitude = -46.6588,
                 roadName = "Av. Paulista",
                 crossRoadName = "Rua Augusta",
-                city = "São Paulo",
+                city = "SÃ£o Paulo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 75,
                 directionBearing = 135f
@@ -37,7 +105,7 @@ object PreloadedTrafficLights {
                 longitude = -46.6562,
                 roadName = "Av. Paulista",
                 crossRoadName = "Rua Frei Caneca",
-                city = "São Paulo",
+                city = "SÃ£o Paulo",
                 hasRedLightCamera = false,
                 cycleTimeSeconds = 60,
                 directionBearing = 135f
@@ -48,7 +116,7 @@ object PreloadedTrafficLights {
                 longitude = -46.6528,
                 roadName = "Av. Paulista",
                 crossRoadName = "Rua Pamplona",
-                city = "São Paulo",
+                city = "SÃ£o Paulo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 75,
                 directionBearing = 135f
@@ -59,7 +127,7 @@ object PreloadedTrafficLights {
                 longitude = -46.6496,
                 roadName = "Av. Paulista",
                 crossRoadName = "Alameda Campinas",
-                city = "São Paulo",
+                city = "SÃ£o Paulo",
                 hasRedLightCamera = false,
                 cycleTimeSeconds = 60,
                 directionBearing = 135f
@@ -69,21 +137,21 @@ object PreloadedTrafficLights {
                 latitude = -23.5701,
                 longitude = -46.6458,
                 roadName = "Av. Paulista",
-                crossRoadName = "Av. Brigadeiro Luís Antônio",
-                city = "São Paulo",
+                crossRoadName = "Av. Brigadeiro LuÃ­s AntÃ´nio",
+                city = "SÃ£o Paulo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 90,
                 directionBearing = 135f
             ),
 
-            // São Paulo - Av. Brigadeiro Faria Lima
+            // SÃ£o Paulo - Av. Brigadeiro Faria Lima
             TrafficLightEntity(
-                id = "osm_tl_farialima_eusébio",
+                id = "osm_tl_farialima_eusÃ©bio",
                 latitude = -23.5694,
                 longitude = -46.6961,
                 roadName = "Av. Brg. Faria Lima",
-                crossRoadName = "Av. Eusébio Matoso",
-                city = "São Paulo",
+                crossRoadName = "Av. EusÃ©bio Matoso",
+                city = "SÃ£o Paulo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 90,
                 directionBearing = 45f
@@ -93,8 +161,8 @@ object PreloadedTrafficLights {
                 latitude = -23.5732,
                 longitude = -46.6912,
                 roadName = "Av. Brg. Faria Lima",
-                crossRoadName = "Av. Rebouças",
-                city = "São Paulo",
+                crossRoadName = "Av. RebouÃ§as",
+                city = "SÃ£o Paulo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 90,
                 directionBearing = 45f
@@ -105,7 +173,7 @@ object PreloadedTrafficLights {
                 longitude = -46.6834,
                 roadName = "Av. Brg. Faria Lima",
                 crossRoadName = "Av. Cidade Jardim",
-                city = "São Paulo",
+                city = "SÃ£o Paulo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 90,
                 directionBearing = 45f
@@ -116,20 +184,20 @@ object PreloadedTrafficLights {
                 longitude = -46.6802,
                 roadName = "Av. Brg. Faria Lima",
                 crossRoadName = "Av. Pres. Juscelino Kubitschek",
-                city = "São Paulo",
+                city = "SÃ£o Paulo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 90,
                 directionBearing = 45f
             ),
 
-            // São Paulo - Av. Rebouças
+            // SÃ£o Paulo - Av. RebouÃ§as
             TrafficLightEntity(
                 id = "osm_tl_reboucas_brasil",
                 latitude = -23.5661,
                 longitude = -46.6781,
-                roadName = "Av. Rebouças",
+                roadName = "Av. RebouÃ§as",
                 crossRoadName = "Av. Brasil",
-                city = "São Paulo",
+                city = "SÃ£o Paulo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 80,
                 directionBearing = 220f
@@ -138,22 +206,22 @@ object PreloadedTrafficLights {
                 id = "osm_tl_reboucas_henrique",
                 latitude = -23.5612,
                 longitude = -46.6719,
-                roadName = "Av. Rebouças",
+                roadName = "Av. RebouÃ§as",
                 crossRoadName = "Rua Henrique Schaumann",
-                city = "São Paulo",
+                city = "SÃ£o Paulo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 90,
                 directionBearing = 220f
             ),
 
-            // São Paulo - Av. 23 de Maio / Corredor Norte-Sul
+            // SÃ£o Paulo - Av. 23 de Maio / Corredor Norte-Sul
             TrafficLightEntity(
                 id = "osm_tl_23maio_viadutosantaifigenia",
                 latitude = -23.5412,
                 longitude = -46.6341,
                 roadName = "Av. Prestes Maia",
-                crossRoadName = "Viaduto Santa Ifigênia",
-                city = "São Paulo",
+                crossRoadName = "Viaduto Santa IfigÃªnia",
+                city = "SÃ£o Paulo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 75,
                 directionBearing = 180f
@@ -186,22 +254,22 @@ object PreloadedTrafficLights {
                 id = "osm_tl_rj_atlantica_figueiredo",
                 latitude = -22.9691,
                 longitude = -43.1834,
-                roadName = "Av. Atlântica",
-                crossRoadName = "Rua Figueiredo de Magalhães",
+                roadName = "Av. AtlÃ¢ntica",
+                crossRoadName = "Rua Figueiredo de MagalhÃ£es",
                 city = "Rio de Janeiro",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 70,
                 directionBearing = 210f
             ),
 
-            // São Bernardo do Campo & Grande ABC - Cruzamentos Principais
+            // SÃ£o Bernardo do Campo & Grande ABC - Cruzamentos Principais
             TrafficLightEntity(
                 id = "sbc_tl_pereira_barreto_metropole",
                 latitude = -23.6845,
                 longitude = -46.5450,
                 roadName = "Av. Pereira Barreto",
-                crossRoadName = "R. Kara / Shopping Metrópole",
-                city = "São Bernardo do Campo",
+                crossRoadName = "R. Kara / Shopping MetrÃ³pole",
+                city = "SÃ£o Bernardo do Campo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 80,
                 directionBearing = 160f
@@ -212,7 +280,7 @@ object PreloadedTrafficLights {
                 longitude = -46.5510,
                 roadName = "Av. Brig. Faria Lima",
                 crossRoadName = "Rua Marechal Deodoro",
-                city = "São Bernardo do Campo",
+                city = "SÃ£o Bernardo do Campo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 75,
                 directionBearing = 180f
@@ -222,8 +290,8 @@ object PreloadedTrafficLights {
                 latitude = -23.6690,
                 longitude = -46.5650,
                 roadName = "Av. Senador Vergueiro",
-                crossRoadName = "Av. Caminho do Mar (Praça dos Meninos)",
-                city = "São Bernardo do Campo",
+                crossRoadName = "Av. Caminho do Mar (PraÃ§a dos Meninos)",
+                city = "SÃ£o Bernardo do Campo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 85,
                 directionBearing = 145f
@@ -234,7 +302,7 @@ object PreloadedTrafficLights {
                 longitude = -46.5520,
                 roadName = "Av. Kennedy",
                 crossRoadName = "Rua Continental",
-                city = "São Bernardo do Campo",
+                city = "SÃ£o Bernardo do Campo",
                 hasRedLightCamera = false,
                 cycleTimeSeconds = 60,
                 directionBearing = 30f
@@ -245,7 +313,7 @@ object PreloadedTrafficLights {
                 longitude = -46.5920,
                 roadName = "Av. Piraporinha",
                 crossRoadName = "Av. Robert Kennedy (Largo)",
-                city = "São Bernardo do Campo",
+                city = "SÃ£o Bernardo do Campo",
                 hasRedLightCamera = true,
                 cycleTimeSeconds = 90,
                 directionBearing = 190f

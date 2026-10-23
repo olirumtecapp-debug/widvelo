@@ -13,6 +13,8 @@ import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
 import androidx.core.content.ContextCompat
+import com.creativeam.widvelo.incident.RoadIncidentAlert
+import com.creativeam.widvelo.incident.RoadIncidentDetector
 import com.creativeam.widvelo.location.SpeedUnit
 import com.creativeam.widvelo.location.VehicleTelemetry
 import com.creativeam.widvelo.location.WidVeloLocationService
@@ -25,6 +27,7 @@ import com.creativeam.widvelo.radar.RadarEntity
 import com.creativeam.widvelo.radar.WidVeloDatabase
 import com.creativeam.widvelo.speedlimit.RoadSpeedLimit
 import com.creativeam.widvelo.speedlimit.SpeedLimitEngine
+import com.creativeam.widvelo.sync.CitySyncManager
 import com.creativeam.widvelo.trafficlight.TrafficLightAlert
 import com.creativeam.widvelo.trafficlight.TrafficLightDetector
 import com.creativeam.widvelo.ui.MainSpeedometerScreen
@@ -42,6 +45,8 @@ class MainActivity : ComponentActivity() {
     private lateinit var database: WidVeloDatabase
     private lateinit var speedLimitEngine: SpeedLimitEngine
     private lateinit var trafficLightDetector: TrafficLightDetector
+    private lateinit var roadIncidentDetector: RoadIncidentDetector
+    private lateinit var citySyncManager: CitySyncManager
     private lateinit var overspeedEvaluator: OverspeedEvaluator
     private lateinit var audioAlerter: AudioAlerter
 
@@ -62,6 +67,8 @@ class MainActivity : ComponentActivity() {
         database = WidVeloDatabase.getInstance(applicationContext)
         speedLimitEngine = SpeedLimitEngine(database.radarDao())
         trafficLightDetector = TrafficLightDetector(database.trafficLightDao())
+        roadIncidentDetector = RoadIncidentDetector(database.roadIncidentDao())
+        citySyncManager = CitySyncManager(database)
         overspeedEvaluator = OverspeedEvaluator(toleranceKmh = 3)
         audioAlerter = AudioAlerter(applicationContext)
 
@@ -69,6 +76,7 @@ class MainActivity : ComponentActivity() {
         checkAndRequestPermissions()
 
         setContent {
+            val scope = rememberCoroutineScope()
             var currentScreen by remember { mutableStateOf("main") }
             var currentUnit by remember { mutableStateOf(SpeedUnit.KMH) }
             var toleranceKmh by remember { mutableStateOf(3) }
@@ -80,10 +88,11 @@ class MainActivity : ComponentActivity() {
 
             var activeRadarAlert by remember { mutableStateOf<RadarAlert?>(null) }
             var activeTrafficLightAlert by remember { mutableStateOf<TrafficLightAlert?>(null) }
+            var activeIncidentAlert by remember { mutableStateOf<RoadIncidentAlert?>(null) }
             var currentRoadLimit by remember { mutableStateOf(RoadSpeedLimit.UNAVAILABLE) }
             var allRadarsList by remember { mutableStateOf<List<RadarEntity>>(emptyList()) }
 
-            // Carrega radares e semáforos do banco e atualiza cálculo geográfico
+            // Carrega radares, semáforos e incidentes do banco e atualiza cálculo geográfico
             LaunchedEffect(telemetry) {
                 if (telemetry.isSessionActive) {
                     val dao = database.radarDao()
@@ -110,6 +119,10 @@ class MainActivity : ComponentActivity() {
 
                     activeTrafficLightAlert = withContext(Dispatchers.IO) {
                         trafficLightDetector.evaluate(telemetry)
+                    }
+
+                    activeIncidentAlert = withContext(Dispatchers.IO) {
+                        roadIncidentDetector.evaluate(telemetry)
                     }
 
                     currentRoadLimit = withContext(Dispatchers.IO) {
@@ -148,6 +161,7 @@ class MainActivity : ComponentActivity() {
                             speedLimit = currentRoadLimit,
                             activeRadarAlert = activeRadarAlert,
                             activeTrafficLightAlert = activeTrafficLightAlert,
+                            activeIncidentAlert = activeIncidentAlert,
                             overspeedLevel = overspeedResult.level,
                             isWidgetActive = isWidgetActive,
                             onToggleSession = {
@@ -188,6 +202,15 @@ class MainActivity : ComponentActivity() {
                         WidVeloAdminScreen(
                             telemetry = telemetry,
                             radarCount = allRadarsList.size,
+                            onSyncTerritory = {
+                                scope.launch {
+                                    val res = citySyncManager.syncTerritory("São Bernardo do Campo")
+                                    withContext(Dispatchers.IO) {
+                                        allRadarsList = database.radarDao().getAllRadars()
+                                    }
+                                    Toast.makeText(this@MainActivity, res.message, Toast.LENGTH_LONG).show()
+                                }
+                            },
                             onBack = { currentScreen = "main" }
                         )
                     }
@@ -211,28 +234,26 @@ class MainActivity : ComponentActivity() {
 
         if (missing.isNotEmpty()) {
             permissionLauncher.launch(missing.toTypedArray())
+        } else {
+            WidVeloLocationService.start(this)
         }
     }
 
-    private fun toggleFloatingWidget(currentlyActive: Boolean) {
-        if (currentlyActive) {
+    private fun toggleFloatingWidget(isActive: Boolean) {
+        if (!Settings.canDrawOverlays(this)) {
+            val intent = Intent(
+                Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                Uri.parse("package:$packageName")
+            )
+            startActivity(intent)
+            Toast.makeText(this, "Conceda permissão de sobreposição para exibir o velocímetro flutuante.", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        if (isActive) {
             FloatingWidVeloService.stop(this)
         } else {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && !Settings.canDrawOverlays(this)) {
-                Toast.makeText(this, "Autorize a sobreposição para ver o velocímetro sobre o Waze/Maps", Toast.LENGTH_LONG).show()
-                val intent = Intent(
-                    Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
-                    Uri.parse("package:$packageName")
-                )
-                startActivity(intent)
-            } else {
-                FloatingWidVeloService.start(this)
-            }
+            FloatingWidVeloService.start(this)
         }
-    }
-
-    override fun onDestroy() {
-        audioAlerter.release()
-        super.onDestroy()
     }
 }

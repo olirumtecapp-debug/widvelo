@@ -8,13 +8,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.CheckCircle
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Security
-import androidx.compose.material.icons.filled.Speed
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -110,6 +106,15 @@ val OFFICIAL_AUDIT_LOG = listOf(
         description = "Redesign completo do Widget Flutuante no estilo circular Waze: velocímetro redondo branco com transição para vermelho em excesso, placa R-19 circular que expande e fica maiorzinha, botão de fechar (✕), motor de limite urbano padrão e banco de radares de SBC/Grande ABC populado com 35+ pontos oficiais.",
         filesAffected = listOf("FloatingWidVeloWidget.kt", "FloatingWidVeloService.kt", "PreloadedRadars.kt", "PreloadedTrafficLights.kt", "SpeedLimitEngine.kt", "WidVeloDatabase.kt", "MainSpeedometerScreen.kt", "RadarListScreen.kt", "WidVeloSettingsScreen.kt", "build.gradle"),
         status = "CONCLUÍDO"
+    ),
+    AuditLogEntry(
+        checkpointId = "#009",
+        title = "Cobertura SBC (Vianas, Ítalo Setti), Alertas de Obras/Interdições & Sync OSM",
+        date = "23/10/2026",
+        version = "v1.0.2 (Build 3)",
+        description = "Módulo de detecção de Vias Interditadas e Obras na pista (RoadIncidentDetector), radar e semáforos específicos da Rua dos Vianas e Av. Ítalo Setti pré-carregados, motor de sincronização territorial Overpass API (CitySyncManager) para expansão de qualquer cidade e exibição de alerta de interdição no widget.",
+        filesAffected = listOf("RoadIncidentType.kt", "RoadIncidentEntity.kt", "RoadIncidentDao.kt", "RoadIncidentDetector.kt", "PreloadedIncidents.kt", "CitySyncManager.kt", "PreloadedRadars.kt", "PreloadedTrafficLights.kt", "WidVeloDatabase.kt", "FloatingWidVeloWidget.kt", "FloatingWidVeloService.kt", "MainSpeedometerScreen.kt", "MainActivity.kt", "build.gradle"),
+        status = "CONCLUÍDO"
     )
 )
 
@@ -118,6 +123,7 @@ val OFFICIAL_AUDIT_LOG = listOf(
 fun WidVeloAdminScreen(
     telemetry: VehicleTelemetry,
     radarCount: Int,
+    onSyncTerritory: () -> Unit = {},
     onBack: () -> Unit
 ) {
     Scaffold(
@@ -157,6 +163,41 @@ fun WidVeloAdminScreen(
         ) {
             item {
                 Spacer(modifier = Modifier.height(4.dp))
+                // Cartão de Sincronização Territorial
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
+                    border = BorderStroke(1.dp, ElectricBlue.copy(alpha = 0.4f))
+                ) {
+                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            Icon(imageVector = Icons.Default.CloudSync, contentDescription = null, tint = ElectricBlue)
+                            Text(text = "Sincronização Territorial (OpenStreetMap)", fontWeight = FontWeight.Bold, fontSize = 16.sp)
+                        }
+
+                        Text(
+                            text = "Baixa a malha viária completa de São Bernardo do Campo (semáforos, radares e limites da Rua dos Vianas, Av. Ítalo Setti, etc.) e salva 100% offline no banco local.",
+                            fontSize = 12.5.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
+                        )
+
+                        Button(
+                            onClick = onSyncTerritory,
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(containerColor = ElectricBlue)
+                        ) {
+                            Icon(imageVector = Icons.Default.Download, contentDescription = null)
+                            Spacer(modifier = Modifier.width(6.dp))
+                            Text("Sincronizar SBC & Grande ABC", fontWeight = FontWeight.Bold)
+                        }
+                    }
+                }
+            }
+
+            item {
                 // Cartão de Diagnóstico de Hardware e Sensores
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -178,25 +219,29 @@ fun WidVeloAdminScreen(
                         }
 
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Rumo / Azimute (Bearing):", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), fontSize = 13.sp)
-                            Text("${String.format(java.util.Locale.US, "%.1f", telemetry.bearing)}°", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text("Qualidade do Sinal:", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), fontSize = 13.sp)
+                            Text(telemetry.signalQuality.label, color = Color(android.graphics.Color.parseColor(telemetry.signalQuality.colorHex)), fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
 
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Precisão do Satélite:", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), fontSize = 13.sp)
-                            Text("± ${String.format(java.util.Locale.US, "%.1f", telemetry.accuracyMeters)}m (${telemetry.signalQuality.label})", fontWeight = FontWeight.Bold, fontSize = 13.sp)
+                            Text("Precisão Geodésica:", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), fontSize = 13.sp)
+                            Text("±${telemetry.accuracyMeters.toInt()} metros", fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
 
                         Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                            Text("Radares Carregados no Banco:", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), fontSize = 13.sp)
-                            Text("$radarCount pontos homologados", fontWeight = FontWeight.Bold, fontSize = 13.sp, color = SafeGreen)
+                            Text("Radares Ativos no Banco:", color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), fontSize = 13.sp)
+                            Text("$radarCount pontos homologados", color = ElectricBlue, fontWeight = FontWeight.Bold, fontSize = 13.sp)
                         }
                     }
                 }
             }
 
             item {
-                Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    modifier = Modifier.padding(top = 4.dp)
+                ) {
                     Icon(imageVector = Icons.Default.Security, contentDescription = null, tint = CyanAccent)
                     Text(
                         text = "Histórico de Modificações & Pontos de Restauração",

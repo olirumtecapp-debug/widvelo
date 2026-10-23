@@ -6,6 +6,10 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.creativeam.widvelo.incident.IncidentTypeConverter
+import com.creativeam.widvelo.incident.PreloadedIncidents
+import com.creativeam.widvelo.incident.RoadIncidentDao
+import com.creativeam.widvelo.incident.RoadIncidentEntity
 import com.creativeam.widvelo.trafficlight.PreloadedTrafficLights
 import com.creativeam.widvelo.trafficlight.TrafficLightDao
 import com.creativeam.widvelo.trafficlight.TrafficLightEntity
@@ -14,15 +18,16 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
 @Database(
-    entities = [RadarEntity::class, TrafficLightEntity::class],
-    version = 3,
+    entities = [RadarEntity::class, TrafficLightEntity::class, RoadIncidentEntity::class],
+    version = 4,
     exportSchema = false
 )
-@TypeConverters(RadarTypeConverter::class)
+@TypeConverters(RadarTypeConverter::class, IncidentTypeConverter::class)
 abstract class WidVeloDatabase : RoomDatabase() {
 
     abstract fun radarDao(): RadarDao
     abstract fun trafficLightDao(): TrafficLightDao
+    abstract fun roadIncidentDao(): RoadIncidentDao
 
     companion object {
         @Volatile
@@ -52,7 +57,7 @@ abstract class WidVeloDatabase : RoomDatabase() {
         }
 
         /**
-         * Garante que os radares e semáforos estejam sempre presentes no banco,
+         * Garante que os radares, semáforos e incidentes estejam sempre presentes no banco,
          * prevenindo tabelas vazias por falhas assíncronas ou migrações.
          */
         suspend fun ensureSeeded(database: WidVeloDatabase) {
@@ -62,6 +67,9 @@ abstract class WidVeloDatabase : RoomDatabase() {
                 }
                 if (database.trafficLightDao().getCount() == 0) {
                     database.trafficLightDao().insertAll(PreloadedTrafficLights.getInitialSeed())
+                }
+                if (database.roadIncidentDao().getCount() == 0) {
+                    database.roadIncidentDao().insertAll(PreloadedIncidents.getInitialSeed())
                 }
             } catch (_: Exception) {}
         }
