@@ -141,3 +141,33 @@
 - **Status da Etapa:** ✅ Concluída com sucesso.
 
 ---
+
+### [PONTO DE RESTAURAÇÃO #007] — Detector de Semáforos Urbanos & Temporizador de Ciclo de Parada
+- **Data/Hora:** 23/10/2026 - 07h15
+- **Versão:** `v1.0.0` (Build `1`)
+- **Objetivo da Etapa:**
+  - Criação da entidade `TrafficLightEntity.kt` e DAO `TrafficLightDao.kt` no banco Room (versão 2).
+  - Pré-carregamento de sementes homologadas de cruzamentos semafóricos de capitais brasileiras (`PreloadedTrafficLights.kt`) a partir de dados abertos do OpenStreetMap (`highway=traffic_signals`) e CET.
+  - Implementação do motor espacial `TrafficLightDetector.kt` com distância Haversine (< 250m) e filtro angular de sentido de fluxo (±45°) para descartar vias perpendiculares.
+  - Temporizador de cruzamento automático: ao detectar imobilização do veículo (Zero-Lock) a menos de 65m do semáforo, aciona contagem regressiva baseada no ciclo regular da via.
+  - Atualização do Widget Flutuante (`FloatingWidVeloWidget.kt` e `FloatingWidVeloService.kt`) exibindo badge de semáforo e contagem regressiva em tempo real sobre o Waze/Maps.
+  - Atualização do painel principal (`MainSpeedometerScreen.kt` e `MainActivity.kt`) com Card dinâmico de semáforo e barra de progresso linear do ciclo.
+  - Criação da suíte de testes unitários `TrafficLightDetectorTest.kt` validando distância, rejeição perpendicular e engajamento do temporizador.
+- **Arquivos Criados/Afetados:**
+  - `android/app/src/main/java/com/creativeam/widvelo/trafficlight/TrafficLightEntity.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/trafficlight/TrafficLightDao.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/trafficlight/PreloadedTrafficLights.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/trafficlight/TrafficLightAlert.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/trafficlight/TrafficLightDetector.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/radar/WidVeloDatabase.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/widget/FloatingWidgetState.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/widget/FloatingWidVeloWidget.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/widget/FloatingWidVeloService.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/ui/MainSpeedometerScreen.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/MainActivity.kt`
+  - `android/app/src/test/java/com/creativeam/widvelo/TrafficLightDetectorTest.kt`
+  - `android/app/src/main/java/com/creativeam/widvelo/ui/WidVeloAdminScreen.kt`
+  - `CHANGELOG_ADM.md`
+- **Status da Etapa:** ✅ Concluída com sucesso.
+
+---

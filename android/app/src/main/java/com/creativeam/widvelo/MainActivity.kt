@@ -25,6 +25,8 @@ import com.creativeam.widvelo.radar.RadarEntity
 import com.creativeam.widvelo.radar.WidVeloDatabase
 import com.creativeam.widvelo.speedlimit.RoadSpeedLimit
 import com.creativeam.widvelo.speedlimit.SpeedLimitEngine
+import com.creativeam.widvelo.trafficlight.TrafficLightAlert
+import com.creativeam.widvelo.trafficlight.TrafficLightDetector
 import com.creativeam.widvelo.ui.MainSpeedometerScreen
 import com.creativeam.widvelo.ui.RadarListScreen
 import com.creativeam.widvelo.ui.WidVeloAdminScreen
@@ -39,6 +41,7 @@ class MainActivity : ComponentActivity() {
 
     private lateinit var database: WidVeloDatabase
     private lateinit var speedLimitEngine: SpeedLimitEngine
+    private lateinit var trafficLightDetector: TrafficLightDetector
     private lateinit var overspeedEvaluator: OverspeedEvaluator
     private lateinit var audioAlerter: AudioAlerter
 
@@ -58,6 +61,7 @@ class MainActivity : ComponentActivity() {
 
         database = WidVeloDatabase.getInstance(applicationContext)
         speedLimitEngine = SpeedLimitEngine(database.radarDao())
+        trafficLightDetector = TrafficLightDetector(database.trafficLightDao())
         overspeedEvaluator = OverspeedEvaluator(toleranceKmh = 3)
         audioAlerter = AudioAlerter(applicationContext)
 
@@ -75,10 +79,11 @@ class MainActivity : ComponentActivity() {
             val isWidgetActive by FloatingWidVeloService.isWidgetActive.collectAsState()
 
             var activeRadarAlert by remember { mutableStateOf<RadarAlert?>(null) }
+            var activeTrafficLightAlert by remember { mutableStateOf<TrafficLightAlert?>(null) }
             var currentRoadLimit by remember { mutableStateOf(RoadSpeedLimit.UNAVAILABLE) }
             var allRadarsList by remember { mutableStateOf<List<RadarEntity>>(emptyList()) }
 
-            // Carrega radares do banco e atualiza cálculo geográfico
+            // Carrega radares e semáforos do banco e atualiza cálculo geográfico
             LaunchedEffect(telemetry) {
                 if (telemetry.isSessionActive) {
                     val dao = database.radarDao()
@@ -102,6 +107,10 @@ class MainActivity : ComponentActivity() {
                             )
                         }
                         .minByOrNull { it.distanceMeters }
+
+                    activeTrafficLightAlert = withContext(Dispatchers.IO) {
+                        trafficLightDetector.evaluate(telemetry)
+                    }
 
                     currentRoadLimit = withContext(Dispatchers.IO) {
                         speedLimitEngine.resolveSpeedLimit(
@@ -137,6 +146,7 @@ class MainActivity : ComponentActivity() {
                             telemetry = telemetry,
                             speedLimit = currentRoadLimit,
                             activeRadarAlert = activeRadarAlert,
+                            activeTrafficLightAlert = activeTrafficLightAlert,
                             overspeedLevel = overspeedResult.level,
                             isWidgetActive = isWidgetActive,
                             onToggleSession = {

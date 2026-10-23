@@ -91,6 +91,15 @@ val OFFICIAL_AUDIT_LOG = listOf(
         description = "Configuração do AndroidManifest com permissões rigorosas de GPS e Overlay, classe WidVeloApplication, recursos XML de strings/cores/temas e testes unitários automatizados.",
         filesAffected = listOf("AndroidManifest.xml", "WidVeloApplication.kt", "strings.xml", "colors.xml", "themes.xml", "GpsSpeedFilterTest.kt", "RadarDetectorTest.kt", "OverspeedEvaluatorTest.kt"),
         status = "CONCLUÍDO"
+    ),
+    AuditLogEntry(
+        checkpointId = "#007",
+        title = "Detector de Semáforos Urbanos & Temporizador de Ciclo de Parada",
+        date = "23/10/2026",
+        version = "v1.0.0 (Build 1)",
+        description = "Integração da base Room com semáforos urbanos (OSM/CET), filtro angular de cruzamento, detecção de imobilização no farol e temporizador progressivo no mostrador e no Widget Flutuante.",
+        filesAffected = listOf("TrafficLightEntity.kt", "TrafficLightDao.kt", "PreloadedTrafficLights.kt", "TrafficLightAlert.kt", "TrafficLightDetector.kt", "WidVeloDatabase.kt", "FloatingWidVeloWidget.kt", "FloatingWidVeloService.kt", "MainSpeedometerScreen.kt", "MainActivity.kt", "TrafficLightDetectorTest.kt"),
+        status = "CONCLUÍDO"
     )
 )
 

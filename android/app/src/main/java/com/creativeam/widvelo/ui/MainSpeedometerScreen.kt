@@ -26,6 +26,7 @@ import com.creativeam.widvelo.location.VehicleTelemetry
 import com.creativeam.widvelo.overspeed.OverspeedLevel
 import com.creativeam.widvelo.radar.RadarAlert
 import com.creativeam.widvelo.speedlimit.RoadSpeedLimit
+import com.creativeam.widvelo.trafficlight.TrafficLightAlert
 import com.creativeam.widvelo.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -34,6 +35,7 @@ fun MainSpeedometerScreen(
     telemetry: VehicleTelemetry,
     speedLimit: RoadSpeedLimit,
     activeRadarAlert: RadarAlert?,
+    activeTrafficLightAlert: TrafficLightAlert? = null,
     overspeedLevel: OverspeedLevel,
     isWidgetActive: Boolean,
     onToggleSession: () -> Unit,
@@ -304,6 +306,88 @@ fun MainSpeedometerScreen(
                                 fontWeight = FontWeight.Black,
                                 color = if (activeRadarAlert.isImminent) AlertRed else ElectricBlue
                             )
+                        }
+                    }
+                }
+
+                // Card de Semáforo & Temporizador de Cruzamento
+                if (activeTrafficLightAlert != null) {
+                    val isWaiting = activeTrafficLightAlert.isAtStandstill
+                    Card(
+                        modifier = Modifier.fillMaxWidth(),
+                        shape = RoundedCornerShape(14.dp),
+                        colors = CardDefaults.cardColors(
+                            containerColor = if (isWaiting) AlertRed.copy(alpha = 0.08f) else MaterialTheme.colorScheme.surface
+                        ),
+                        border = BorderStroke(
+                            width = if (isWaiting) 2.dp else 1.dp,
+                            color = if (isWaiting) AlertRed else SafeGreen.copy(alpha = 0.6f)
+                        )
+                    ) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(14.dp)
+                        ) {
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                verticalAlignment = Alignment.CenterVertically,
+                                horizontalArrangement = Arrangement.SpaceBetween
+                            ) {
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(10.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Traffic,
+                                        contentDescription = null,
+                                        tint = if (isWaiting) AlertRed else SafeGreen
+                                    )
+                                    Column {
+                                        Text(
+                                            text = if (isWaiting) "🚦 PARADO NO FAROL • AGUARDE" else "🚦 SEMÁFORO À FRENTE",
+                                            fontSize = 11.sp,
+                                            fontWeight = FontWeight.Bold,
+                                            color = if (isWaiting) AlertRed else SafeGreen
+                                        )
+                                        Text(
+                                            text = "${activeTrafficLightAlert.entity.roadName} x ${activeTrafficLightAlert.entity.crossRoadName}",
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            color = MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+
+                                if (isWaiting) {
+                                    Text(
+                                        text = "~${activeTrafficLightAlert.estimatedRemainingSeconds}s",
+                                        fontSize = 20.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = AlertRed
+                                    )
+                                } else {
+                                    Text(
+                                        text = activeTrafficLightAlert.formattedDistance,
+                                        fontSize = 18.sp,
+                                        fontWeight = FontWeight.Black,
+                                        color = SafeGreen
+                                    )
+                                }
+                            }
+
+                            if (isWaiting && activeTrafficLightAlert.progressFraction > 0f) {
+                                Spacer(modifier = Modifier.height(8.dp))
+                                LinearProgressIndicator(
+                                    progress = { activeTrafficLightAlert.progressFraction },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(6.dp)
+                                        .clip(RoundedCornerShape(3.dp)),
+                                    color = AlertRed,
+                                    trackColor = AlertRed.copy(alpha = 0.2f)
+                                )
+                            }
                         }
                     }
                 }

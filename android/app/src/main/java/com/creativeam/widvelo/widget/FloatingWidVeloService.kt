@@ -11,6 +11,7 @@ import com.creativeam.widvelo.overspeed.OverspeedLevel
 import com.creativeam.widvelo.radar.RadarDetector
 import com.creativeam.widvelo.radar.WidVeloDatabase
 import com.creativeam.widvelo.speedlimit.SpeedLimitEngine
+import com.creativeam.widvelo.trafficlight.TrafficLightDetector
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
@@ -29,6 +30,7 @@ class FloatingWidVeloService : Service() {
     private val serviceScope = CoroutineScope(Dispatchers.Main + SupervisorJob())
     private var widget: FloatingWidVeloWidget? = null
     private lateinit var speedLimitEngine: SpeedLimitEngine
+    private lateinit var trafficLightDetector: TrafficLightDetector
     private lateinit var overspeedEvaluator: OverspeedEvaluator
     private lateinit var audioAlerter: AudioAlerter
 
@@ -36,6 +38,7 @@ class FloatingWidVeloService : Service() {
         super.onCreate()
         val db = WidVeloDatabase.getInstance(applicationContext)
         speedLimitEngine = SpeedLimitEngine(db.radarDao())
+        trafficLightDetector = TrafficLightDetector(db.trafficLightDao())
         overspeedEvaluator = OverspeedEvaluator(toleranceKmh = 3)
         audioAlerter = AudioAlerter(applicationContext)
         widget = FloatingWidVeloWidget(applicationContext)
@@ -71,6 +74,11 @@ class FloatingWidVeloService : Service() {
                     }
                     .minByOrNull { it.distanceMeters }
 
+                // Avalia semáforos e temporizador de cruzamento à frente
+                val trafficLightAlert = withContext(Dispatchers.IO) {
+                    trafficLightDetector.evaluate(telemetry)
+                }
+
                 // Resolve limite de velocidade da via
                 val roadLimit = withContext(Dispatchers.IO) {
                     speedLimitEngine.resolveSpeedLimit(
@@ -95,6 +103,8 @@ class FloatingWidVeloService : Service() {
                 // Atualiza aviso na notificação do sistema
                 if (radarAlert != null) {
                     WidVeloLocationService.updateRadarNotice("⚠️ ${radarAlert.radar.type.shortBadge} ${radarAlert.formattedDistance} (${radarAlert.radar.speedLimit ?: "--"} km/h)")
+                } else if (trafficLightAlert != null && trafficLightAlert.isAtStandstill) {
+                    WidVeloLocationService.updateRadarNotice("🚦 Farol: aguarde ~${trafficLightAlert.estimatedRemainingSeconds}s")
                 } else if (roadLimit.isAvailable) {
                     WidVeloLocationService.updateRadarNotice("Limite da via: ${roadLimit.limitKmh} km/h")
                 } else {
@@ -109,6 +119,9 @@ class FloatingWidVeloService : Service() {
                         speedLimitText = if (roadLimit.isAvailable) "${roadLimit.limitKmh}" else null,
                         radarDistanceText = radarAlert?.formattedDistance,
                         radarTypeLabel = radarAlert?.radar?.type?.shortBadge,
+                        trafficLightNotice = trafficLightAlert?.statusText,
+                        isAtRedLightStandstill = trafficLightAlert?.isAtStandstill ?: false,
+                        trafficLightProgress = trafficLightAlert?.progressFraction ?: 0f,
                         overspeedLevel = overspeed.level,
                         isRadarImminent = radarAlert?.isImminent ?: false,
                         gpsSignalQuality = telemetry.signalQuality,

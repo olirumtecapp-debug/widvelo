@@ -40,6 +40,8 @@ class FloatingWidVeloWidget(private val context: Context) {
     private lateinit var limitBadgeLayout: LinearLayout
     private lateinit var tvRadar: TextView
     private lateinit var radarBadgeLayout: LinearLayout
+    private lateinit var tvTrafficLight: TextView
+    private lateinit var trafficLightBadgeLayout: LinearLayout
     private lateinit var cardContainer: LinearLayout
 
     private var isVisible = false
@@ -205,6 +207,28 @@ class FloatingWidVeloWidget(private val context: Context) {
         radarBadgeLayout.addView(tvRadar)
         cardContainer.addView(radarBadgeLayout)
 
+        // 4. Badge de Semáforo / Temporizador de Cruzamento
+        trafficLightBadgeLayout = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            gravity = Gravity.CENTER_VERTICAL
+            setPadding(dp(8), dp(4), dp(8), dp(4))
+            background = createCardBackground("#1E293B", "#10B981", 8f, 1)
+            layoutParams = LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.WRAP_CONTENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
+                marginStart = dp(8)
+            }
+        }
+        tvTrafficLight = TextView(context).apply {
+            text = "FAROL"
+            setTextColor(Color.parseColor("#10B981"))
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 12f)
+            typeface = Typeface.create(Typeface.DEFAULT, Typeface.BOLD)
+        }
+        trafficLightBadgeLayout.addView(tvTrafficLight)
+        cardContainer.addView(trafficLightBadgeLayout)
+
         root.addView(cardContainer)
         return root
     }
@@ -249,6 +273,24 @@ class FloatingWidVeloWidget(private val context: Context) {
             }
         } else {
             radarBadgeLayout.visibility = View.GONE
+        }
+
+        // 5. Semáforo Próximo & Temporizador
+        if (!state.trafficLightNotice.isNullOrBlank()) {
+            trafficLightBadgeLayout.visibility = View.VISIBLE
+            tvTrafficLight.text = state.trafficLightNotice
+
+            if (state.isAtRedLightStandstill) {
+                // Parado no semáforo: destaque em vermelho/laranja com contagem regressiva
+                trafficLightBadgeLayout.background = createCardBackground("#450A0A", "#EF4444", 8f, 2)
+                tvTrafficLight.setTextColor(Color.parseColor("#FCA5A5"))
+            } else {
+                // Aproximação de semáforo: verde/ciano discreto
+                trafficLightBadgeLayout.background = createCardBackground("#0F172A", "#10B981", 8f, 1)
+                tvTrafficLight.setTextColor(Color.parseColor("#34D399"))
+            }
+        } else {
+            trafficLightBadgeLayout.visibility = View.GONE
         }
     }
 
