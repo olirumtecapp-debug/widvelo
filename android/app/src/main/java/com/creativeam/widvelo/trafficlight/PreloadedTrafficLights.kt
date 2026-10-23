@@ -7,7 +7,6 @@ package com.creativeam.widvelo.trafficlight
 object PreloadedTrafficLights {
 
     fun getInitialSeed(): List<TrafficLightEntity> {
-        fun getInitialSeed(): List<TrafficLightEntity> {
         return listOf(
             // === RUA DOS VIANAS & AV. ÍTALO SETTI (SBC) ===
             TrafficLightEntity(
