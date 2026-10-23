@@ -38,6 +38,8 @@ fun WidVeloSettingsScreen(
     onSoundChanged: (Boolean) -> Unit,
     onThemeChanged: (Boolean) -> Unit,
     onCheckForUpdates: () -> Unit = {},
+    isSimulationRunning: Boolean = false,
+    onToggleSimulation: () -> Unit = {},
     onBack: () -> Unit
 ) {
     Scaffold(
@@ -371,6 +373,72 @@ fun WidVeloSettingsScreen(
                             Switch(
                                 checked = darkThemeEnabled,
                                 onCheckedChange = onThemeChanged
+                            )
+                        }
+                    }
+                }
+            }
+
+            // Card 3.5: Como Funcionam os Radares e Semáforos + Teste de Alertas
+            item {
+                Text(
+                    text = "RADAR, FAROL E DEMONSTRAÇÃO",
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = ElectricBlue,
+                    maxLines = 1
+                )
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = CardDefaults.outlinedCardBorder()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
+                        ) {
+                            Icon(imageVector = Icons.Default.Info, contentDescription = null, tint = CyanAccent)
+                            Text(
+                                text = "Como os Alertas Aparecem?",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 15.sp
+                            )
+                        }
+
+                        Text(
+                            text = "• Radares Homologados: Monitorados em um cone direcional de 800m à frente no mesmo sentido da via (ex: Rua dos Vianas e Av. Ítalo Setti). A distância diminui em tempo real e emite aviso sonoro ao se aproximar.
+
+• Semáforos com Temporizador: Avisam cruzamentos a até 300m. Se o veículo parar (0 km/h), o app e o widget exibem o tempo estimado restante do ciclo do farol.
+
+• Widget Flutuante Estilo Waze: Em velocidade normal, fica no design escuro clean sem distrações. Ao ultrapassar o limite, fica VERMELHO e exibe a placa de velocidade ao lado.",
+                            fontSize = 12.5.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
+                            lineHeight = 17.sp
+                        )
+
+                        Button(
+                            onClick = onToggleSimulation,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(44.dp),
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = if (isSimulationRunning) AlertRed else ElectricBlue
+                            )
+                        ) {
+                            Text(
+                                text = if (isSimulationRunning) "⏹ Parar Simulação de Alertas" else "🧪 Testar Alertas & Simular Rota SBC",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.5.sp,
+                                maxLines = 1
                             )
                         }
                     }

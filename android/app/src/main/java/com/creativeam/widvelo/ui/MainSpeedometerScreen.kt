@@ -42,6 +42,8 @@ fun MainSpeedometerScreen(
     activeIncidentAlert: RoadIncidentAlert? = null,
     overspeedLevel: OverspeedLevel,
     isWidgetActive: Boolean,
+    isSimulationRunning: Boolean = false,
+    onToggleSimulation: () -> Unit = {},
     onToggleSession: () -> Unit,
     onToggleWidget: () -> Unit,
     onOpenSettings: () -> Unit,
@@ -125,31 +127,59 @@ fun MainSpeedometerScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            // 1. Chip Superior de Sinal GPS
-            Surface(
-                shape = RoundedCornerShape(999.dp),
-                color = Color(android.graphics.Color.parseColor(telemetry.signalQuality.colorHex)).copy(alpha = 0.12f),
-                border = BorderStroke(1.dp, Color(android.graphics.Color.parseColor(telemetry.signalQuality.colorHex)).copy(alpha = 0.4f)),
-                modifier = Modifier.padding(top = 2.dp)
+            // 1. Linha Superior: Chip de Sinal GPS + Botão de Demonstração / Teste de Alertas
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 2.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 14.dp, vertical = 5.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                Surface(
+                    shape = RoundedCornerShape(999.dp),
+                    color = Color(android.graphics.Color.parseColor(telemetry.signalQuality.colorHex)).copy(alpha = 0.12f),
+                    border = BorderStroke(1.dp, Color(android.graphics.Color.parseColor(telemetry.signalQuality.colorHex)).copy(alpha = 0.4f))
                 ) {
-                    Box(
-                        modifier = Modifier
-                            .size(8.dp)
-                            .clip(CircleShape)
-                            .background(Color(android.graphics.Color.parseColor(telemetry.signalQuality.colorHex)))
-                    )
-                    Text(
-                        text = "${telemetry.signalQuality.label} (±${telemetry.accuracyMeters.toInt()}m)",
-                        fontSize = 12.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color(android.graphics.Color.parseColor(telemetry.signalQuality.colorHex)),
-                        maxLines = 1
-                    )
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(8.dp)
+                                .clip(CircleShape)
+                                .background(Color(android.graphics.Color.parseColor(telemetry.signalQuality.colorHex)))
+                        )
+                        Text(
+                            text = if (isSimulationRunning) "SIMULAÇÃO SBC" else "${telemetry.signalQuality.label} (±${telemetry.accuracyMeters.toInt()}m)",
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isSimulationRunning) CautionAmber else Color(android.graphics.Color.parseColor(telemetry.signalQuality.colorHex)),
+                            maxLines = 1
+                        )
+                    }
+                }
+
+                Surface(
+                    onClick = onToggleSimulation,
+                    shape = RoundedCornerShape(999.dp),
+                    color = if (isSimulationRunning) AlertRed.copy(alpha = 0.14f) else ElectricBlue.copy(alpha = 0.12f),
+                    border = BorderStroke(1.dp, if (isSimulationRunning) AlertRed else ElectricBlue.copy(alpha = 0.5f))
+                ) {
+                    Row(
+                        modifier = Modifier.padding(horizontal = 12.dp, vertical = 5.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(4.dp)
+                    ) {
+                        Text(
+                            text = if (isSimulationRunning) "⏹ Parar Demo" else "🧪 Testar Alertas",
+                            fontSize = 11.5.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = if (isSimulationRunning) AlertRed else ElectricBlue,
+                            maxLines = 1
+                        )
+                    }
                 }
             }
 

@@ -1,18 +1,18 @@
 {
-  "versionName": "1.0.4",
-  "versionCode": 5,
+  "versionName": "1.0.5",
+  "versionCode": 6,
   "releaseDate": "2026-10-23",
-  "apkUrl": "https://raw.githubusercontent.com/olirumtecapp-debug/widvelo/main/WidVelo-v1.0.4.apk",
-  "directDownloadUrl": "https://github.com/olirumtecapp-debug/widvelo/raw/main/WidVelo-v1.0.4.apk",
-  "fileSizeBytes": 15690157,
+  "apkUrl": "https://raw.githubusercontent.com/olirumtecapp-debug/widvelo/main/WidVelo-v1.0.5.apk",
+  "directDownloadUrl": "https://github.com/olirumtecapp-debug/widvelo/raw/main/WidVelo-v1.0.5.apk",
+  "fileSizeBytes": 15694025,
   "fileSizeFormatted": "15.0 MB",
   "mandatory": false,
-  "title": "Nova Atualização Disponível!",
+  "title": "Nova Atualização do WidVelo (v1.0.5)!",
   "changelog": [
-    "📱 Nova Seção 'Sobre o Aplicativo': Dados de versão, build code, detalhes do dispositivo Android e créditos.",
-    "🚀 Atualizações Automáticas (OTA) dentro do app com instalação em 1 toque.",
-    "🚧 Alertas Inteligentes de Vias Interditadas, Obras e Acidentes (até 800m à frente).",
-    "📍 Cobertura hiper-local em São Bernardo do Campo: Rua dos Vianas e Av. Ítalo Setti com radares e semáforos.",
-    "⚪ Widget flutuante Waze redondo com expansão dinâmica de placa R-19 e botão fechar ✕ instantâneo."
+    "🏎️ Widget Estilo Waze Fiel: Fundo escuro circular em velocidade normal (sem distrações na condução).",
+    "🔴 Alerta Dinâmico de Excesso: O velocímetro fica VERMELHO vivo e a placa de limite surge ao lado ao exceder a velocidade.",
+    "✖️ Botão Fechar Corrigido: Substituído caractere corrompido por botão discreto e nítido no canto superior do widget.",
+    "🧪 Modo Demonstração & Teste de Alertas: Teste radares, semáforos e alertas em tempo real na tela com 1 toque.",
+    "🚦 Alertas Inteligentes na Pílula do Widget: Radares com distância, contagem de semáforos parados e obras."
   ]
 }

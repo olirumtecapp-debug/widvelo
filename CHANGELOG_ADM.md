@@ -292,3 +292,28 @@
 - **Status da Etapa:** ✅ Concluída com sucesso.
 
 ---
+
+### [PONTO DE RESTAURAÇÃO #012] — Widget Redondo Waze Fiel, Botão Fechar Corrigido & Simulador de Alertas (Radares & Faróis)
+- **Data/Hora:** 23/10/2026 - 17h25
+- **Versão:** v1.0.5 (Build 6)
+- **Objetivo da Etapa:**
+  - Redesenho completo do Widget Flutuante no padrão idêntico ao Waze:
+    - Fundo escuro circular (#1F242D) com aro sutil em velocidade normal, limpo e sem distrações.
+    - Em velocidade normal: placa de limite recolhida ("nada acontece").
+    - Em excesso de velocidade: o velocímetro fica VERMELHO vivo (#EF4444) e a placa R-19 (limite) surge ao lado.
+    - Correção do botão de fechar: substituição do caractere corrompido (âœ) por um botão circular discreto com unicode \u2715 posicionado no canto superior direito do velocímetro.
+  - Implementação do Modo Demonstração & Teste de Alertas (Simulador de Rota em SBC):
+    - Permite ao usuário testar instantaneamente na tela do celular como funcionam os radares, semáforos/faróis parados, excesso de velocidade e obras, com 1 toque no botão "🧪 Testar Alertas".
+  - Seção explicativa em Configurações ensinando a lógica de detecção de radares e faróis.
+- **Arquivos Criados/Afetados:**
+  - android/app/src/main/java/com/creativeam/widvelo/widget/FloatingWidVeloWidget.kt
+  - android/app/src/main/java/com/creativeam/widvelo/location/WidVeloLocationService.kt
+  - android/app/src/main/java/com/creativeam/widvelo/ui/MainSpeedometerScreen.kt
+  - android/app/src/main/java/com/creativeam/widvelo/ui/WidVeloSettingsScreen.kt
+  - android/app/src/main/java/com/creativeam/widvelo/MainActivity.kt
+  - android/app/build.gradle (v1.0.5 Build 6)
+  - version.json
+  - CHANGELOG_ADM.md
+- **Status da Etapa:** ✅ Concluída com sucesso.
+
+---

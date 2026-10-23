@@ -120,6 +120,7 @@ class MainActivity : ComponentActivity() {
 
             val telemetry by WidVeloLocationService.currentTelemetry.collectAsState()
             val isWidgetActive by FloatingWidVeloService.isWidgetActive.collectAsState()
+            val isSimulationRunning by WidVeloLocationService.isSimulationRunning.collectAsState()
 
             var activeRadarAlert by remember { mutableStateOf<RadarAlert?>(null) }
             var activeTrafficLightAlert by remember { mutableStateOf<TrafficLightAlert?>(null) }
@@ -220,6 +221,14 @@ class MainActivity : ComponentActivity() {
                             activeIncidentAlert = activeIncidentAlert,
                             overspeedLevel = overspeedResult.level,
                             isWidgetActive = isWidgetActive,
+                            isSimulationRunning = isSimulationRunning,
+                            onToggleSimulation = {
+                                if (isSimulationRunning) {
+                                    WidVeloLocationService.stopSimulation()
+                                } else {
+                                    WidVeloLocationService.startSimulation(scope)
+                                }
+                            },
                             onToggleSession = {
                                 if (telemetry.isSessionActive) {
                                     WidVeloLocationService.stop(this@MainActivity)
@@ -246,6 +255,14 @@ class MainActivity : ComponentActivity() {
                             onSoundChanged = { soundEnabled = it },
                             onThemeChanged = { darkThemeEnabled = it },
                             onCheckForUpdates = triggerUpdateCheck,
+                            isSimulationRunning = isSimulationRunning,
+                            onToggleSimulation = {
+                                if (isSimulationRunning) {
+                                    WidVeloLocationService.stopSimulation()
+                                } else {
+                                    WidVeloLocationService.startSimulation(scope)
+                                }
+                            },
                             onBack = { currentScreen = "main" }
                         )
                     }

@@ -39,8 +39,10 @@ class WidVeloLocationService : Service() {
 
         serviceScope.launch {
             tracker.telemetry.collect { telemetry ->
-                _currentTelemetry.value = telemetry
-                updateNotification(telemetry)
+                if (!_isSimulationRunning.value) {
+                    _currentTelemetry.value = telemetry
+                    updateNotification(telemetry)
+                }
             }
         }
     }
@@ -151,6 +153,53 @@ class WidVeloLocationService : Service() {
 
         private val _isServiceRunning = MutableStateFlow(false)
         val isServiceRunning: StateFlow<Boolean> = _isServiceRunning.asStateFlow()
+
+        private var simulationJob: kotlinx.coroutines.Job? = null
+        private val _isSimulationRunning = MutableStateFlow(false)
+        val isSimulationRunning: StateFlow<Boolean> = _isSimulationRunning.asStateFlow()
+
+        fun startSimulation(scope: CoroutineScope) {
+            if (_isSimulationRunning.value) return
+            _isSimulationRunning.value = true
+            simulationJob?.cancel()
+            simulationJob = scope.launch(Dispatchers.Default) {
+                // Etapas de rota simulada em São Bernardo do Campo (Rua dos Vianas)
+                val steps = listOf(
+                    // 1. Condução normal em SBC a 44 km/h (sem alertas)
+                    VehicleTelemetry(speedKmh = 44.0, speedDisplay = 44, bearing = 140f, latitude = -23.6852, longitude = -46.5415, accuracyMeters = 3f, signalQuality = GpsSignalQuality.EXCELLENT, isSessionActive = true),
+                    VehicleTelemetry(speedKmh = 46.0, speedDisplay = 46, bearing = 140f, latitude = -23.6848, longitude = -46.5435, accuracyMeters = 3f, signalQuality = GpsSignalQuality.EXCELLENT, isSessionActive = true),
+                    // 2. Parada no Semáforo da Pereira Barreto (0 km/h)
+                    VehicleTelemetry(speedKmh = 0.0, speedDisplay = 0, bearing = 140f, latitude = -23.6845, longitude = -46.5450, accuracyMeters = 3f, signalQuality = GpsSignalQuality.EXCELLENT, isSessionActive = true),
+                    VehicleTelemetry(speedKmh = 0.0, speedDisplay = 0, bearing = 140f, latitude = -23.6845, longitude = -46.5450, accuracyMeters = 3f, signalQuality = GpsSignalQuality.EXCELLENT, isSessionActive = true),
+                    // 3. Farol abre, aceleração
+                    VehicleTelemetry(speedKmh = 32.0, speedDisplay = 32, bearing = 140f, latitude = -23.6838, longitude = -46.5410, accuracyMeters = 3f, signalQuality = GpsSignalQuality.EXCELLENT, isSessionActive = true),
+                    VehicleTelemetry(speedKmh = 48.0, speedDisplay = 48, bearing = 140f, latitude = -23.6834, longitude = -46.5385, accuracyMeters = 3f, signalQuality = GpsSignalQuality.EXCELLENT, isSessionActive = true),
+                    // 4. Excesso de velocidade (58 km/h em via de 50) + Radar SBC-VIA-01 à frente (350m)
+                    VehicleTelemetry(speedKmh = 58.0, speedDisplay = 58, bearing = 140f, latitude = -23.6828, longitude = -46.5365, accuracyMeters = 3f, signalQuality = GpsSignalQuality.EXCELLENT, isSessionActive = true),
+                    VehicleTelemetry(speedKmh = 59.0, speedDisplay = 59, bearing = 140f, latitude = -23.6823, longitude = -46.5355, accuracyMeters = 3f, signalQuality = GpsSignalQuality.EXCELLENT, isSessionActive = true),
+                    // 5. Radar iminente (120m)
+                    VehicleTelemetry(speedKmh = 57.0, speedDisplay = 57, bearing = 140f, latitude = -23.6821, longitude = -46.5352, accuracyMeters = 3f, signalQuality = GpsSignalQuality.EXCELLENT, isSessionActive = true),
+                    // 6. Redução após o radar (46 km/h - normalizado)
+                    VehicleTelemetry(speedKmh = 46.0, speedDisplay = 46, bearing = 140f, latitude = -23.6815, longitude = -46.5345, accuracyMeters = 3f, signalQuality = GpsSignalQuality.EXCELLENT, isSessionActive = true),
+                    // 7. Obras na pista à frente (SBC-INC-01 a 250m)
+                    VehicleTelemetry(speedKmh = 38.0, speedDisplay = 38, bearing = 140f, latitude = -23.6808, longitude = -46.5338, accuracyMeters = 3f, signalQuality = GpsSignalQuality.EXCELLENT, isSessionActive = true)
+                )
+
+                var index = 0
+                while (_isSimulationRunning.value) {
+                    val tel = steps[index % steps.size]
+                    _currentTelemetry.value = tel
+                    kotlinx.coroutines.delay(2400L)
+                    index++
+                }
+            }
+        }
+
+        fun stopSimulation() {
+            _isSimulationRunning.value = false
+            simulationJob?.cancel()
+            simulationJob = null
+        }
 
         fun updateRadarNotice(notice: String) {
             _nextRadarNotice.value = notice
