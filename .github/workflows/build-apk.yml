@@ -63,6 +63,6 @@ jobs:
           cp release-apk/WidVelo.apk ./WidVelo.apk
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add WidVelo-v${VERSION_NAME}.apk WidVelo.apk
+          git add -f WidVelo-v${VERSION_NAME}.apk WidVelo.apk
           git commit -m "chore(release): publish WidVelo-v${VERSION_NAME}.apk [skip ci]" || echo "No changes to commit"
           git push origin main || echo "Push skipped or branch protected"
