@@ -1,4 +1,4 @@
-﻿package com.creativeam.widvelo.widget
+package com.creativeam.widvelo.widget
 
 import android.annotation.SuppressLint
 import android.content.Context

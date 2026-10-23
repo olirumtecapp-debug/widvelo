@@ -1,4 +1,4 @@
-﻿package com.creativeam.widvelo.radar
+package com.creativeam.widvelo.radar
 
 /**
  * Base sÃ³lida prÃ©-carregada de radares verificados de fontes pÃºblicas oficiais

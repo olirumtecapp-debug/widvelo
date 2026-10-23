@@ -1,4 +1,4 @@
-﻿package com.creativeam.widvelo.trafficlight
+package com.creativeam.widvelo.trafficlight
 
 /**
  * CatÃ¡logo inicial de sementes homologadas de semÃ¡foros urbanos e cruzamentos mapeados.
