@@ -22,6 +22,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.creativeam.widvelo.BuildConfig
 import com.creativeam.widvelo.location.SpeedUnit
+import com.creativeam.widvelo.ui.theme.AlertRed
+import com.creativeam.widvelo.ui.theme.CautionAmber
 import com.creativeam.widvelo.ui.theme.CyanAccent
 import com.creativeam.widvelo.ui.theme.ElectricBlue
 import com.creativeam.widvelo.ui.theme.SafeGreen
