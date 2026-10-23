@@ -1,18 +1,18 @@
 {
-  "versionName": "1.0.3",
-  "versionCode": 4,
+  "versionName": "1.0.4",
+  "versionCode": 5,
   "releaseDate": "2026-10-23",
-  "apkUrl": "https://raw.githubusercontent.com/olirumtecapp-debug/widvelo/main/WidVelo-v1.0.3.apk",
-  "directDownloadUrl": "https://github.com/olirumtecapp-debug/widvelo/raw/main/WidVelo-v1.0.3.apk",
-  "fileSizeBytes": 15670089,
+  "apkUrl": "https://raw.githubusercontent.com/olirumtecapp-debug/widvelo/main/WidVelo-v1.0.4.apk",
+  "directDownloadUrl": "https://github.com/olirumtecapp-debug/widvelo/raw/main/WidVelo-v1.0.4.apk",
+  "fileSizeBytes": 15690157,
   "fileSizeFormatted": "15.0 MB",
   "mandatory": false,
   "title": "Nova Atualização Disponível!",
   "changelog": [
+    "📱 Nova Seção 'Sobre o Aplicativo': Dados de versão, build code, detalhes do dispositivo Android e créditos.",
     "🚀 Atualizações Automáticas (OTA) dentro do app com instalação em 1 toque.",
-    "🚧 Alertas Inteligentes de Vias Interditadas, Obras e Acidentes (raio de até 800m à frente).",
+    "🚧 Alertas Inteligentes de Vias Interditadas, Obras e Acidentes (até 800m à frente).",
     "📍 Cobertura hiper-local em São Bernardo do Campo: Rua dos Vianas e Av. Ítalo Setti com radares e semáforos.",
-    "🔄 Sincronização territorial via OpenStreetMap Overpass API para novas cidades e bairros.",
     "⚪ Widget flutuante Waze redondo com expansão dinâmica de placa R-19 e botão fechar ✕ instantâneo."
   ]
 }

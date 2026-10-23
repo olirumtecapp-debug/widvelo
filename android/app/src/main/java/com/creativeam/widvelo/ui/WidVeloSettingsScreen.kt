@@ -1,22 +1,30 @@
 package com.creativeam.widvelo.ui
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.material.icons.filled.Speed
-import androidx.compose.material.icons.filled.VolumeUp
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.SystemUpdate
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.creativeam.widvelo.BuildConfig
 import com.creativeam.widvelo.location.SpeedUnit
+import com.creativeam.widvelo.ui.theme.CyanAccent
 import com.creativeam.widvelo.ui.theme.ElectricBlue
+import com.creativeam.widvelo.ui.theme.SafeGreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -35,7 +43,15 @@ fun WidVeloSettingsScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Configurações do WidVelo", fontWeight = FontWeight.Bold, fontSize = 18.sp) },
+                title = {
+                    Text(
+                        text = "Configurações do WidVelo",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 18.sp,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(imageVector = Icons.Default.ArrowBack, contentDescription = "Voltar")
@@ -49,18 +65,20 @@ fun WidVeloSettingsScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(14.dp)
         ) {
             item {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(2.dp))
                 Text(
                     text = "UNIDADES E TOLERÂNCIA",
                     fontSize = 11.5.sp,
                     fontWeight = FontWeight.Bold,
-                    color = ElectricBlue
+                    color = ElectricBlue,
+                    maxLines = 1
                 )
             }
 
+            // Card 1: Unidade de Velocidade & Tolerância
             item {
                 Card(
                     modifier = Modifier.fillMaxWidth(),
@@ -68,57 +86,138 @@ fun WidVeloSettingsScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     border = CardDefaults.outlinedCardBorder()
                 ) {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
+                        // Linha 1: Seletor Segmentado de Unidade (km/h vs mph)
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Unidade de Velocidade", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, maxLines = 1)
-                                Text("Exibição no velocímetro e widget", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), maxLines = 1)
+                                Text(
+                                    text = "Unidade de Velocidade",
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 14.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = "Exibição no velocímetro e widget",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
-                            Spacer(modifier = Modifier.width(8.dp))
-                            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                FilterChip(
-                                    selected = currentUnit == SpeedUnit.KMH,
-                                    onClick = { onUnitChanged(SpeedUnit.KMH) },
-                                    label = { Text("km/h") }
-                                )
-                                FilterChip(
-                                    selected = currentUnit == SpeedUnit.MPH,
-                                    onClick = { onUnitChanged(SpeedUnit.MPH) },
-                                    label = { Text("mph") }
-                                )
+
+                            Spacer(modifier = Modifier.width(10.dp))
+
+                            // Segmented Controls km/h | mph
+                            Row(
+                                modifier = Modifier.width(136.dp),
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
+                            ) {
+                                listOf(
+                                    SpeedUnit.KMH to "km/h",
+                                    SpeedUnit.MPH to "mph"
+                                ).forEach { (unit, label) ->
+                                    val isSelected = currentUnit == unit
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(34.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(
+                                                if (isSelected) ElectricBlue else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                            )
+                                            .border(
+                                                width = 1.dp,
+                                                color = if (isSelected) ElectricBlue else MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
+                                                shape = RoundedCornerShape(8.dp)
+                                            )
+                                            .clickable { onUnitChanged(unit) },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = label,
+                                            fontSize = 12.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
+                                            maxLines = 1,
+                                            softWrap = false
+                                        )
+                                    }
+                                }
                             }
                         }
 
-                        Divider()
+                        Divider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
-                        Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+                        // Linha 2: Tolerância de Excesso com 4 Colunas Justificadas com weight(1f)
+                        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically
                             ) {
-                                Text("Tolerância de Excesso:", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                Text("+ $toleranceKmh km/h", fontWeight = FontWeight.Bold, color = ElectricBlue)
+                                Text(
+                                    text = "Tolerância de Excesso:",
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 14.sp,
+                                    maxLines = 1
+                                )
+                                Text(
+                                    text = "+ $toleranceKmh km/h",
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 14.sp,
+                                    color = ElectricBlue,
+                                    maxLines = 1
+                                )
                             }
+
                             Text(
-                                "Evita alertas constantes por pequenas variações do GPS.",
+                                text = "Evita alertas sonoros por pequenas variações do GPS.",
                                 fontSize = 12.sp,
                                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                                maxLines = 1
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
+
+                            // 4 Botões Segmentados Perfeitamente Alinhados e Justificados
                             Row(
                                 modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceBetween
+                                horizontalArrangement = Arrangement.spacedBy(6.dp)
                             ) {
                                 listOf(0, 3, 5, 10).forEach { tol ->
-                                    FilterChip(
-                                        selected = toleranceKmh == tol,
-                                        onClick = { onToleranceChanged(tol) },
-                                        label = { Text("+$tol km/h") }
-                                    )
+                                    val isSelected = toleranceKmh == tol
+                                    Box(
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(36.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(
+                                                if (isSelected) ElectricBlue else MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+                                            )
+                                            .border(
+                                                width = 1.dp,
+                                                color = if (isSelected) ElectricBlue else MaterialTheme.colorScheme.outline.copy(alpha = 0.25f),
+                                                shape = RoundedCornerShape(8.dp)
+                                            )
+                                            .clickable { onToleranceChanged(tol) },
+                                        contentAlignment = Alignment.Center
+                                    ) {
+                                        Text(
+                                            text = "+$tol km/h",
+                                            fontSize = 11.5.sp,
+                                            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                            color = if (isSelected) Color.White else MaterialTheme.colorScheme.onSurface,
+                                            maxLines = 1,
+                                            softWrap = false
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -126,12 +225,14 @@ fun WidVeloSettingsScreen(
                 }
             }
 
+            // Card 2: Atualizações e Versão (OTA)
             item {
                 Text(
                     text = "ATUALIZAÇÕES E VERSÃO",
                     fontSize = 11.5.sp,
                     fontWeight = FontWeight.Bold,
-                    color = ElectricBlue
+                    color = ElectricBlue,
+                    maxLines = 1
                 )
             }
 
@@ -152,31 +253,55 @@ fun WidVeloSettingsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Versão do App", fontWeight = FontWeight.SemiBold, fontSize = 14.sp)
-                                Text("v1.0.2 (Build 3) • OTA Ativo", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f))
+                                Text(
+                                    text = "Versão Instalada",
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 14.sp,
+                                    maxLines = 1
+                                )
+                                Text(
+                                    text = "v${BuildConfig.VERSION_NAME} (Build ${BuildConfig.VERSION_CODE}) • OTA Ativo",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
                         }
 
                         Button(
                             onClick = onCheckForUpdates,
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(44.dp),
                             shape = RoundedCornerShape(10.dp),
                             colors = ButtonDefaults.buttonColors(containerColor = ElectricBlue)
                         ) {
-                            Icon(imageVector = Icons.Default.SystemUpdate, contentDescription = null)
-                            Spacer(modifier = Modifier.width(6.dp))
-                            Text("Verificar Atualizações do App", fontWeight = FontWeight.Bold)
+                            Icon(
+                                imageVector = Icons.Default.SystemUpdate,
+                                contentDescription = null,
+                                modifier = Modifier.size(18.dp)
+                            )
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text(
+                                text = "Verificar Atualizações do App",
+                                fontWeight = FontWeight.Bold,
+                                fontSize = 13.5.sp,
+                                maxLines = 1
+                            )
                         }
                     }
                 }
             }
 
+            // Card 3: Alertas e Aparência
             item {
                 Text(
                     text = "ALERTAS E APARÊNCIA",
                     fontSize = 11.5.sp,
                     fontWeight = FontWeight.Bold,
-                    color = ElectricBlue
+                    color = ElectricBlue,
+                    maxLines = 1
                 )
             }
 
@@ -187,24 +312,39 @@ fun WidVeloSettingsScreen(
                     colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
                     border = CardDefaults.outlinedCardBorder()
                 ) {
-                    Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(14.dp)) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp)
+                    ) {
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Alertas Sonoros (Beep)", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, maxLines = 1)
-                                Text("Beep ao se aproximar de radares e excesso", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), maxLines = 1)
+                                Text(
+                                    text = "Alertas Sonoros (Beep)",
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 14.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = "Beep ao se aproximar de radares e excesso",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
                             Switch(
                                 checked = soundEnabled,
                                 onCheckedChange = onSoundChanged
                             )
                         }
 
-                        Divider()
+                        Divider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
                         Row(
                             modifier = Modifier.fillMaxWidth(),
@@ -212,10 +352,22 @@ fun WidVeloSettingsScreen(
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Column(modifier = Modifier.weight(1f)) {
-                                Text("Modo Escuro (Noturno)", fontWeight = FontWeight.SemiBold, fontSize = 14.sp, maxLines = 1)
-                                Text("Fundo preto OLED para dirigir à noite", fontSize = 12.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f), maxLines = 1)
+                                Text(
+                                    text = "Modo Escuro (Noturno)",
+                                    fontWeight = FontWeight.SemiBold,
+                                    fontSize = 14.sp,
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    text = "Fundo preto OLED para dirigir à noite",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
                             }
-                            Spacer(modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(12.dp))
                             Switch(
                                 checked = darkThemeEnabled,
                                 onCheckedChange = onThemeChanged
@@ -223,6 +375,127 @@ fun WidVeloSettingsScreen(
                         }
                     }
                 }
+            }
+
+            // Card 4: Sobre o Aplicativo
+            item {
+                Text(
+                    text = "SOBRE O APLICATIVO",
+                    fontSize = 11.5.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = ElectricBlue,
+                    maxLines = 1
+                )
+            }
+
+            item {
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(14.dp),
+                    colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+                    border = CardDefaults.outlinedCardBorder()
+                ) {
+                    Column(
+                        modifier = Modifier.padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(10.dp)
+                    ) {
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(10.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Default.Info,
+                                contentDescription = null,
+                                tint = CyanAccent,
+                                modifier = Modifier.size(24.dp)
+                            )
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "WidVelo",
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    maxLines = 1
+                                )
+                                Text(
+                                    text = "Velocímetro GPS, Radares & Widget Flutuante",
+                                    fontSize = 12.sp,
+                                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                            }
+                        }
+
+                        Divider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Versão do App:", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), maxLines = 1)
+                            Text("v${BuildConfig.VERSION_NAME}", fontSize = 13.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Código da Build:", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), maxLines = 1)
+                            Text("${BuildConfig.VERSION_CODE}", fontSize = 13.sp, fontWeight = FontWeight.Bold, maxLines = 1)
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Sistema Operacional:", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), maxLines = 1)
+                            Text("Android ${android.os.Build.VERSION.RELEASE} (API ${android.os.Build.VERSION.SDK_INT})", fontSize = 13.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Dispositivo:", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), maxLines = 1)
+                            Text("${android.os.Build.MANUFACTURER.replaceFirstChar { it.uppercase() }} ${android.os.Build.MODEL}", fontSize = 13.sp, fontWeight = FontWeight.Medium, maxLines = 1)
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Banco de Dados:", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), maxLines = 1)
+                            Text("Room SQLite v4 (SBC)", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = SafeGreen, maxLines = 1)
+                        }
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text("Canal de Entrega:", fontSize = 13.sp, color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f), maxLines = 1)
+                            Text("OTA Direto GitHub", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = CyanAccent, maxLines = 1)
+                        }
+
+                        Divider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
+
+                        Text(
+                            text = "© 2026 CreativeAM / OlirumTec • Todos os direitos reservados.\nDesenvolvido com foco em precisão, leveza e condução segura.",
+                            fontSize = 11.sp,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                            lineHeight = 15.sp
+                        )
+                    }
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
             }
         }
     }

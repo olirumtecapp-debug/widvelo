@@ -271,3 +271,24 @@
 - **Status da Etapa:** ✅ Concluída com sucesso.
 
 ---
+### [PONTO DE RESTAURAÇÃO #011] — Seção "Sobre o Aplicativo" (Dados de Versão, Build, Dispositivo & SO)
+- **Data/Hora:** 23/10/2026 - 16h30
+- **Versão:** 1.0.4 (Build 5)
+- **Objetivo da Etapa:**
+  - Criação da seção dedicada "Sobre o Aplicativo" dentro da tela de Configurações (WidVeloSettingsScreen.kt).
+  - Apresentação visual e dinâmica dos dados técnicos da aplicação:
+    - Versão oficial do App (BuildConfig.VERSION_NAME -> 1.0.4)
+    - Código da Build (BuildConfig.VERSION_CODE -> 5)
+    - Sistema Operacional (Android  (API ))
+    - Dispositivo e Modelo do Smartphone do usuário
+    - Versão do Banco de Dados local (Room SQLite v4)
+    - Canal de distribuição e entrega (OTA Oficial GitHub Direct)
+    - Informações de autoria e direitos reservados (CreativeAM / OlirumTec).
+- **Arquivos Criados/Afetados:**
+  - ndroid/app/src/main/java/com/creativeam/widvelo/ui/WidVeloSettingsScreen.kt
+  - ndroid/app/build.gradle (v1.0.4 Build 5)
+  - ersion.json
+  - CHANGELOG_ADM.md
+- **Status da Etapa:** ✅ Concluída com sucesso.
+
+---
