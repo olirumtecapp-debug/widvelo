@@ -416,11 +416,11 @@ fun WidVeloSettingsScreen(
                         }
 
                         Text(
-                            text = "• Radares Homologados: Monitorados em um cone direcional de 800m à frente no mesmo sentido da via (ex: Rua dos Vianas e Av. Ítalo Setti). A distância diminui em tempo real e emite aviso sonoro ao se aproximar.
+                            text = """• Radares Homologados: Monitorados em um cone direcional de 800m à frente no mesmo sentido da via (ex: Rua dos Vianas e Av. Ítalo Setti). A distância diminui em tempo real e emite aviso sonoro ao se aproximar.
 
 • Semáforos com Temporizador: Avisam cruzamentos a até 300m. Se o veículo parar (0 km/h), o app e o widget exibem o tempo estimado restante do ciclo do farol.
 
-• Widget Flutuante Estilo Waze: Em velocidade normal, fica no design escuro clean sem distrações. Ao ultrapassar o limite, fica VERMELHO e exibe a placa de velocidade ao lado.",
+• Widget Flutuante Estilo Waze: Em velocidade normal, fica no design escuro clean sem distrações. Ao ultrapassar o limite, fica VERMELHO e exibe a placa de velocidade ao lado.""",
                             fontSize = 12.5.sp,
                             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f),
                             lineHeight = 17.sp
